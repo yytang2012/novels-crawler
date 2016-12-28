@@ -1,18 +1,94 @@
 # -*- coding: utf-8 -*-
+import os
+import re
+
 import scrapy
+from scrapy import Selector
+from scrapy.conf import settings
 
 from libs.misc import get_spider_name
+from libs.polish import *
+from novelsCrawler.items import NovelsCrawlerItem
 
 
 class StoSpider(scrapy.Spider):
+    """
+    classdocs
+
+    example: http://www.sto.cc/123331-1/
+    """
+
     dom = 'www.sto.cc'
     name = get_spider_name(dom)
     allowed_domains = [dom]
+    tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
     def __init__(self, *args, **kwargs):
         super(StoSpider, self).__init__(*args, **kwargs)
         self.start_urls = kwargs['start_urls']
         print(self.start_urls)
 
+    # def start_requests(self):
+    #     for url in self.start_urls:
+    #         yield self.make_requests_from_url(url)
+
     def parse(self, response):
-        pass
+        sel = Selector(response)
+        title = sel.xpath('//h1/text()').extract()[0]
+        title = re.search(u'《([^》]+)》', title).group(1)
+        title = polish_title(title, self.name)
+        print(title)
+        tmp_spider_root_dir = os.path.join(self.tmp_root_dir, title)
+        if not os.path.isdir(tmp_spider_root_dir):
+            os.makedirs(tmp_spider_root_dir)
+
+        # Get the last page number
+        last_url = sel.xpath('//div[@id="webPage"]/a/@href').extract()[-1]
+        max_page = int(re.match(u'[^-]*-(\d+)/', last_url).group(1))
+
+        # Get the url prefix
+        page_url_prefix = re.match(u'([^-]*)', response.url).group(0)
+
+        web_pages = []
+        web_url = response.url
+        web_items = []
+        for i in range(1, max_page + 1):
+            page_item = {}
+            url = "%s-%d" % (page_url_prefix, i)
+            page_item['url'] = url
+            subtitle = ''
+            page_item['subtitle'] = subtitle
+            page_item['id'] = i
+            page_item['title'] = title
+            page_item['type'] = 'novels'
+            page_item['root_dir'] = tmp_spider_root_dir
+            web_items.append(page_item)
+            web_pages.append(i)
+        web_pages.sort()
+        save_index(title, tmp_spider_root_dir, web_url, web_pages)
+        pages = polish_chapter_ids(tmp_spider_root_dir, web_pages)
+
+        for page_item in web_items:
+            i = page_item['id']
+            if i in pages:
+                url = page_item['url']
+                request = scrapy.Request(url, callback=self.parse_page)
+                item = NovelsCrawlerItem()
+                item['title'] = page_item['title']
+                item['subtitle'] = page_item['subtitle']
+                item['id'] = page_item['id']
+                item['type'] = page_item['type']
+                item['root_dir'] = page_item['root_dir']
+                request.meta['item'] = item
+                yield request
+
+    def parse_page(self, response):
+        item = response.meta['item']
+        sel = Selector(response)
+        content = sel.xpath('//div[@id="BookContent"]/text()').extract()
+        content = polish_content(content)
+        item['content'] = content
+        return item
+
+
+

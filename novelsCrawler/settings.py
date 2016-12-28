@@ -20,6 +20,12 @@ NEWSPIDER_MODULE = 'novelsCrawler.spiders'
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
+# NovelsCrawler
+URL_PATH = '~/novels/urlfile'
+TMP_DIR = '~/novels/tmpNovels'
+LOG = '~/novels/Download-history.log'
+INDEX_FILE = 'index'
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
 
@@ -63,9 +69,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    'novelsCrawler.pipelines.SomePipeline': 300,
-# }
+ITEM_PIPELINES = {
+   'novelsCrawler.pipelines.NovelsCrawlerPipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

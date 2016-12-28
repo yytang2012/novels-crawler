@@ -8,7 +8,10 @@
 import scrapy
 
 
-class NovelscrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class NovelsCrawlerItem(scrapy.Item):
+    type = scrapy.Field()
+    title = scrapy.Field()
+    subtitle = scrapy.Field()
+    content = scrapy.Field()
+    id = scrapy.Field()
+    root_dir = scrapy.Field()
