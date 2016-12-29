@@ -18,13 +18,16 @@ NEWSPIDER_MODULE = 'novelsCrawler.spiders'
 # USER_AGENT = 'novelsCrawler (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # NovelsCrawler
-URL_PATH = '~/novels/urlfile'
-TMP_DIR = '~/novels/tmpNovels'
-LOG = '~/novels/Download-history.log'
+URL_FILE = 'urlfile'
+TMP_DIR = 'tmpNovels'
+LOG = 'Download-history.log'
+ROOT_DIR = '~/novels'
+DOWNLOADS = 'downloads'
 INDEX_FILE = 'index'
+DROPBOX_TOKEN = 'dropbox-token'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
