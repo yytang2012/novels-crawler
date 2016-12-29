@@ -11,7 +11,7 @@ import re
 import time
 
 
-def get_spider_name(dom):
+def get_spider_name_from_domain(dom):
     nameList = dom.split('.')
     prefix = ('' if len(nameList) == 2 or nameList[0] == 'www' else nameList[0])
     name = nameList[-2]
@@ -21,8 +21,12 @@ def get_spider_name(dom):
 
 
 def get_spider_name_from_url(url):
-    dom = re.search(r'http://([^\/]+)/', url).group(1)
-    return get_spider_name(dom)
+    dom = get_domain_from_url(url)
+    return get_spider_name_from_domain(dom)
+
+
+def get_domain_from_url(url):
+    return re.search(r'http://([^\/]+)/', url).group(1)
 
 
 @contextlib.contextmanager

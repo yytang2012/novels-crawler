@@ -20,7 +20,7 @@ class NovelsCrawlerPipeline(object):
         if not os.path.isfile(novel_path):
             with open(novel_path, 'w') as fd:
                 print(subtitle)
-                fd.write(subtitle.encode('utf-8'))
+                fd.write(subtitle)
                 for cc in content:
-                    fd.write(cc.encode('utf-8'))
+                    fd.write(cc)
 

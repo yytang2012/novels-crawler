@@ -6,7 +6,7 @@ import scrapy
 from scrapy import Selector
 from scrapy.conf import settings
 
-from libs.misc import get_spider_name
+from libs.misc import get_spider_name_from_domain
 from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
@@ -19,7 +19,7 @@ class StoSpider(scrapy.Spider):
     """
 
     dom = 'www.sto.cc'
-    name = get_spider_name(dom)
+    name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
     tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
