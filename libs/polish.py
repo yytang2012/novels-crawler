@@ -70,10 +70,10 @@ def save_index(title, tmp_spider_root_dir, url, chapters, firstPage=True):
     index_path = os.path.join(tmp_spider_root_dir, index_file)
     if firstPage:
         urls = [url]
-        data = [title, urls, chapters]
+        data = (title, urls, chapters)
         save_to_json(data, index_path)
     else:
-        [title, urls, oldChapters] = load_from_json(index_path)
+        (title, urls, oldChapters) = load_from_json(index_path)
         urls.append(url)
-        data = [title, urls, oldChapters + chapters]
+        data = (title, urls, oldChapters + chapters)
         save_to_json(data, index_path)

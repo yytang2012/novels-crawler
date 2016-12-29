@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import os
-import re
 
 import scrapy
 from scrapy import Selector
-from scrapy.conf import settings
 
 from libs.misc import get_spider_name_from_domain
 from libs.polish import *
@@ -21,11 +18,12 @@ class StoSpider(scrapy.Spider):
     dom = 'www.sto.cc'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
-    tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
+    # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
     def __init__(self, *args, **kwargs):
         super(StoSpider, self).__init__(*args, **kwargs)
         self.start_urls = kwargs['start_urls']
+        self.tmp_novels_dir = kwargs['tmp_novels_dir']
         print(self.start_urls)
 
     # def start_requests(self):
@@ -38,7 +36,7 @@ class StoSpider(scrapy.Spider):
         title = re.search(u'《([^》]+)》', title).group(1)
         title = polish_title(title, self.name)
         print(title)
-        tmp_spider_root_dir = os.path.join(self.tmp_root_dir, title)
+        tmp_spider_root_dir = os.path.join(self.tmp_novels_dir, title)
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
