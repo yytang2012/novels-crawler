@@ -40,6 +40,7 @@ class NovelsCrawler:
                 allowed_domains += spider.allowed_domains
             except Exception:
                 print("{0}: allowed domain is not defined".format(spider_name))
+        allowed_domains.sort()
         if write_to_file:
             with open('allowed_domains.dat', 'w') as f:
                 for url in allowed_domains:
