@@ -42,7 +42,7 @@ def polish_subtitle(subtitle):
     return subtitle
 
 
-def polish_chapter_ids(tmp_spider_root_dir, pages):
+def polish_pages(tmp_spider_root_dir, pages):
     pages = [i for i in pages if not os.path.isfile(os.path.join(tmp_spider_root_dir, str(i) + '.txt'))]
     # pages = []
     # for i in pagesOld:
@@ -65,7 +65,7 @@ def polish_content(content, num=0):
     return res
 
 
-def save_index(title, tmp_spider_root_dir, url, chapters, firstPage=True):
+def save_index(title, url, tmp_spider_root_dir, chapters, firstPage=True):
     index_file = settings['INDEX_FILE']
     index_path = os.path.join(tmp_spider_root_dir, index_file)
     if firstPage:

@@ -9,9 +9,6 @@ import os
 
 class NovelsCrawlerPipeline(object):
     def process_item(self, item, spider):
-        if item['type'] == 'comics':
-            return item
-
         page_id = item['id']
         subtitle = item['subtitle']
         content = item['content']

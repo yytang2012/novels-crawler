@@ -58,13 +58,12 @@ class StoSpider(scrapy.Spider):
             page_item['subtitle'] = subtitle
             page_item['id'] = i
             page_item['title'] = title
-            page_item['type'] = 'novels'
             page_item['root_dir'] = tmp_spider_root_dir
             web_items.append(page_item)
             web_pages.append(i)
         web_pages.sort()
-        save_index(title, tmp_spider_root_dir, web_url, web_pages)
-        pages = polish_chapter_ids(tmp_spider_root_dir, web_pages)
+        save_index(title, web_url, tmp_spider_root_dir, web_pages)
+        pages = polish_pages(tmp_spider_root_dir, web_pages)
 
         for page_item in web_items:
             i = page_item['id']
@@ -75,7 +74,6 @@ class StoSpider(scrapy.Spider):
                 item['title'] = page_item['title']
                 item['subtitle'] = page_item['subtitle']
                 item['id'] = page_item['id']
-                item['type'] = page_item['type']
                 item['root_dir'] = page_item['root_dir']
                 request.meta['item'] = item
                 yield request

@@ -59,7 +59,7 @@ class NovelsCrawler:
     def start_downloading(self, save_to_Dropbox=True):
         for spider_name, start_urls in self._start_urls.items():
             self.crawler_process.crawl(spider_name, start_urls=start_urls, tmp_novels_dir=self.tmp_novels_dir)
-            self.crawler_process.start()
+        self.crawler_process.start()
         print("Stage: start combining pages to novels")
         novels = self.combine_pages_to_novels()
         if len(novels) != 0:

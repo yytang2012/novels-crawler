@@ -9,7 +9,6 @@ import scrapy
 
 
 class NovelsCrawlerItem(scrapy.Item):
-    type = scrapy.Field()
     title = scrapy.Field()
     subtitle = scrapy.Field()
     content = scrapy.Field()
