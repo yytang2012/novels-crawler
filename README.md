@@ -1,4 +1,6 @@
 TODO:
 
-1. Save all supported urls to an external file named domains.dat
-2. main.py read urls to be crawled from ~/novels/urlfile and run the corresponding spiders
+Maintain a proxy ip pool and randomly use a proxy ip when crawling
+    - Get the proxy from 
+        https://incloak.com/proxy-list/?type=h#list
+    - Write a middleware module to do this task
