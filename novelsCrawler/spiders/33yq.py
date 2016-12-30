@@ -8,21 +8,24 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
 
-class Lwxs520Spider(scrapy.Spider):
+class Novel33yqSpider(scrapy.Spider):
     """
     classdocs
 
-    example: http://www.lwxs520.com/books/33/33348/index.html
+    example: http://www.33yq.com/read/43/43303/
     """
 
-    dom = 'www.lwxs520.com'
+    dom = 'www.33yq.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
+    custom_settings = {
+        'DOWNLOAD_DELAY': 0.5,
+    }
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
     def __init__(self, *args, **kwargs):
-        super(Lwxs520Spider, self).__init__(*args, **kwargs)
+        super(Novel33yqSpider, self).__init__(*args, **kwargs)
         self.start_urls = kwargs['start_urls']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         print(self.start_urls)
@@ -40,8 +43,13 @@ class Lwxs520Spider(scrapy.Spider):
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
-        subtitle_selectors = sel.xpath('//div[@class="dccss"]/a')
-        all_pages = [i+1 for i in range(0, len(subtitle_selectors))]
+        parent_selectors = sel.xpath('//div[@id="list"]/dl/dd')
+        for i in range(0, int(len(parent_selectors)/3)):
+            tmp = parent_selectors[i*3+2]
+            parent_selectors[i*3+2] = parent_selectors[i*3]
+            parent_selectors[i*3] = tmp
+        subtitle_selectors = parent_selectors.xpath('a')
+        all_pages = [i for i in range(1, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(title, all_pages)
 
@@ -68,7 +76,7 @@ class Lwxs520Spider(scrapy.Spider):
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        content = sel.xpath('//p/text()').extract()
+        content = sel.xpath('//div[@id="TXT"]/text()').extract()
         content = polish_content(content)
         item['content'] = content
         return item

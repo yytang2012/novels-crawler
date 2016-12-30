@@ -41,7 +41,7 @@ class ExampleSpider(scrapy.Spider):
             os.makedirs(tmp_spider_root_dir)
 
         subtitle_selectors = sel.xpath('//div[@class="dccss"]/a')
-        all_pages = [i for i in range(1, len(subtitle_selectors))]
+        all_pages = [i+1 for i in range(0, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(title, all_pages)
 
