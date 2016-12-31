@@ -29,6 +29,7 @@ DOWNLOADS = 'downloads'
 INDEX_FILE = 'index'
 DROPBOX_TOKEN = 'dropbox-token'
 
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
 
@@ -41,7 +42,7 @@ DROPBOX_TOKEN = 'dropbox-token'
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -54,9 +55,9 @@ DROPBOX_TOKEN = 'dropbox-token'
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-# SPIDER_MIDDLEWARES = {
-#    'novelsCrawler.middlewares.NovelscrawlerSpiderMiddleware': 543,
-# }
+SPIDER_MIDDLEWARES = {
+   'novelsCrawler.middlewares.NovelscrawlerSpiderMiddleware': 356,
+}
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
