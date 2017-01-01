@@ -28,7 +28,7 @@ ROOT_DIR = '~/novels'
 DOWNLOADS = 'downloads'
 INDEX_FILE = 'index'
 DROPBOX_TOKEN = 'dropbox-token'
-
+PROXY_FILE = '~/novels/proxy-file.txt'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -42,7 +42,7 @@ DROPBOX_TOKEN = 'dropbox-token'
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -55,15 +55,18 @@ COOKIES_ENABLED = False
 
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-   'novelsCrawler.middlewares.NovelscrawlerSpiderMiddleware': 356,
-}
+# SPIDER_MIDDLEWARES = {
+#    'novelsCrawler.middlewares.NovelscrawlerSpiderMiddleware': 356
+# }
 
 # Enable or disable downloader middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'novelsCrawler.middlewares.MyCustomDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+   'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+   'novelsCrawler.middlewares.NovelscrawlerDownloaderMiddleware': 543,
+   'novelsCrawler.middlewares.ProxyDownloaderMiddleware': 100,
+   'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+}
 
 # Enable or disable extensions
 # See http://scrapy.readthedocs.org/en/latest/topics/extensions.html

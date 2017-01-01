@@ -60,7 +60,7 @@ class YushuwuNetMobileSpider(scrapy.Spider):
         subtitle_selectors = subtitle_selectors[1:]
         all_pages = [i + start_page for i in range(0, len(subtitle_selectors))]
         page_index += all_pages
-        download_pages = polish_pages(title, all_pages)
+        download_pages = polish_pages(tmp_spider_root_dir, all_pages)
 
         # Traverse the subtitle_selectors only crawler the pages that haven't been downloaded yet
         for i, subtitle_selector in enumerate(subtitle_selectors):

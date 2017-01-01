@@ -8,21 +8,21 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
 
-class Lwxs520Spider(scrapy.Spider):
+class BaishulouSpider(scrapy.Spider):
     """
     classdocs
 
-    example: http://www.lwxs520.com/books/33/33348/index.html
+    example: http://www.baishulou.net/read/48/48856/
     """
 
-    dom = 'www.lwxs520.com'
+    dom = 'www.baishulou.net'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
     def __init__(self, *args, **kwargs):
-        super(Lwxs520Spider, self).__init__(*args, **kwargs)
+        super(BaishulouSpider, self).__init__(*args, **kwargs)
         self.start_urls = kwargs['start_urls']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         print(self.start_urls)
@@ -40,7 +40,7 @@ class Lwxs520Spider(scrapy.Spider):
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
-        subtitle_selectors = sel.xpath('//div[@class="dccss"]/a')
+        subtitle_selectors = sel.xpath('//td[@class="dccss"]/a')
         all_pages = [i+1 for i in range(0, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(tmp_spider_root_dir, all_pages)
@@ -68,7 +68,7 @@ class Lwxs520Spider(scrapy.Spider):
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        content = sel.xpath('//p/text()').extract()
+        content = sel.xpath('//div[@id="content"]/text()').extract()
         content = polish_content(content)
         item['content'] = content
         return item

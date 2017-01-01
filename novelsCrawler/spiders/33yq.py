@@ -51,7 +51,7 @@ class Novel33yqSpider(scrapy.Spider):
         subtitle_selectors = parent_selectors.xpath('a')
         all_pages = [i for i in range(1, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
-        download_pages = polish_pages(title, all_pages)
+        download_pages = polish_pages(tmp_spider_root_dir, all_pages)
 
         # Traverse the subtitle_selectors only crawler the pages that haven't been downloaded yet
         for i, subtitle_selector in enumerate(subtitle_selectors):
