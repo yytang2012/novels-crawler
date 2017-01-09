@@ -69,7 +69,7 @@ class YushuwuNetMobileSpider(scrapy.Spider):
                 continue
             else:
                 subtitle_url = subtitle_selector.xpath('@href').extract()[0]
-                m = re.search("javascript:toChapter\(([\d]+),([\d]+)\);", subtitle_url)
+                m = re.search("javascript:[t|g]oChapter\(([\d]+),([\d]+)\);", subtitle_url)
                 if m is not None:
                     subtitle_url = '/novel/{0}/{1}.html'.format(m.group(1), m.group(2))
                 subtitle_url = response.urljoin(subtitle_url.strip())

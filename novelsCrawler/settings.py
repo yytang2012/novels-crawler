@@ -64,8 +64,8 @@ COOKIES_ENABLED = True
 DOWNLOADER_MIDDLEWARES = {
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
    'novelsCrawler.middlewares.NovelscrawlerDownloaderMiddleware': 543,
-   'novelsCrawler.middlewares.ProxyDownloaderMiddleware': 100,
-   'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
+   # 'novelsCrawler.middlewares.ProxyDownloaderMiddleware': 100,
+   # 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 110,
 }
 
 # Enable or disable extensions

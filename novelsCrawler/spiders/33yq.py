@@ -19,7 +19,7 @@ class Novel33yqSpider(scrapy.Spider):
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.1,
+        'DOWNLOAD_DELAY': 0.5,
     }
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
