@@ -53,12 +53,29 @@ def polish_pages(tmp_spider_root_dir, pages):
     return pages
 
 
-def polish_content(content, num=0):
+def polish_content(content, num=0, word_convert=True):
+    replace_dict = {
+        '「': '“',
+        '」': '”',
+        '远': '遠',
+        '杂': '雜',
+        '敌': '敵',
+        '杀': '殺',
+        '虑': '慮',
+        '叽': '嘰',
+        '耸': '聳',
+        '稳': '穩',
+        '迟': '遲',
+        '艳': '艷',
+        '迈': '邁',
+        '鉴': '鑒',
+    }
     res = []
     enters = '\n\n'
     for cc in content:
-        cc = cc.replace('「', '“')
-        cc = cc.replace('」', '”')
+        if word_convert:
+            for ori_word, new_word in replace_dict.items():
+                cc = cc.replace(ori_word, new_word)
         if cc.strip().strip('\r') == '':
             continue
         res.append(cc.strip('\n\r') + enters)

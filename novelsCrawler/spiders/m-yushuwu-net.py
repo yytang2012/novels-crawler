@@ -18,6 +18,9 @@ class YushuwuNetMobileSpider(scrapy.Spider):
     dom = 'm.yushuwu.net'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
+    custom_settings = {
+        'DOWNLOAD_DELAY': 0.2,
+    }
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 

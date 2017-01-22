@@ -11,9 +11,11 @@ import os
 
 class NovelsCrawler:
     crawler_process = CrawlerProcess(get_project_settings())
-    _start_urls = defaultdict(lambda: [])
+
+    # _start_urls = defaultdict(lambda: [])
 
     def __init__(self):
+        self._start_urls = defaultdict(lambda: [])
         self.root_dir = os.path.expanduser(settings['ROOT_DIR'])
         if not os.path.isdir(self.root_dir):
             os.makedirs(self.root_dir)
@@ -30,7 +32,6 @@ class NovelsCrawler:
         [self.token] = load_from_json(token_path)
 
         self.allowed_domains = self.get_allowed_domains(True)
-        self._start_url_init()
 
     def get_allowed_domains(self, write_to_file=False):
         allowed_domains = []
@@ -47,15 +48,19 @@ class NovelsCrawler:
                     f.write('{0}\n'.format(url))
         return allowed_domains
 
-    def _start_url_init(self):
-        with open(self.url_path, 'r') as f:
-            # 1. Remove the spaces
-            # 2. Remove the urls not supported
-            urls = [url.strip() for url in f.readlines() if len(url.strip()) != 0]
-            urls = [url for url in urls if get_domain_from_url(url) in self.allowed_domains]
-            for url in urls:
-                spider_name = get_spider_name_from_url(url)
-                self._start_urls[spider_name].append(url)
+    def start_url_init(self, urls=None):
+        if not urls:
+            with open(self.url_path, 'r') as f:
+                # 1. Remove the spaces
+                # 2. Remove the urls not supported
+                urls = [url.strip() for url in f.readlines() if len(url.strip()) != 0]
+                urls = [url for url in urls if get_domain_from_url(url) in self.allowed_domains]
+        else:
+            self._start_urls = defaultdict(lambda: [])
+
+        for url in urls:
+            spider_name = get_spider_name_from_url(url)
+            self._start_urls[spider_name].append(url)
 
     def start_downloading(self, save_to_Dropbox=True):
         for spider_name, start_urls in self._start_urls.items():
@@ -68,6 +73,14 @@ class NovelsCrawler:
                 self.upload_to_dropbox(novels)
             else:
                 self.update_local_log(novels)
+
+        def flatten(urls):
+            return sum(urls, [])
+
+        successful_urls = flatten([item[1] for item in novels])
+        all_urls = flatten(self._start_urls.values())
+        failed_urls = [url for url in all_urls if url not in successful_urls]
+        return failed_urls
 
     def combine_pages_to_novels(self):
         """
@@ -150,10 +163,12 @@ class NovelsCrawler:
             dbx_api.upload(output_path, '', '', title + '.txt', overwrite=True)
 
 
-def main():
+def main(count=0, urls=None):
     with stopwatch('Main'):
         crawler = NovelsCrawler()
-        crawler.start_downloading()
+        crawler.start_url_init(urls)
+        failed_urls = crawler.start_downloading()
+        print(failed_urls)
 
 
 if __name__ == '__main__':
