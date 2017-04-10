@@ -101,7 +101,7 @@ class NovelsCrawler:
                     continue
                 else:
                     (title, urls, pages) = data
-                    contents = ''
+                    contents = '{0}\n\n'.format(title)
                     for page in pages:
                         page_path = os.path.join(novel_dir, '{0}.txt'.format(page))
                         try:

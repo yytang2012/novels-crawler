@@ -18,6 +18,7 @@ class BaishulouSpider(scrapy.Spider):
     dom = 'www.baishulou.net'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
+    handle_httpstatus_list = [521]
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
