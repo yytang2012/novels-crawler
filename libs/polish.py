@@ -53,7 +53,7 @@ def polish_pages(tmp_spider_root_dir, pages):
     return pages
 
 
-def polish_content(content, num=0, word_convert=True):
+def polish_content(content, title=None, num=0, word_convert=True):
     replace_dict = {
         '「': '“',
         '」': '”',
@@ -70,8 +70,8 @@ def polish_content(content, num=0, word_convert=True):
         '迈': '邁',
         '鉴': '鑒',
     }
-    res = []
     enters = '\n\n'
+    res = [title+enters]
     for cc in content:
         if word_convert:
             for ori_word, new_word in replace_dict.items():

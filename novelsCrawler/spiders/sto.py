@@ -80,9 +80,10 @@ class StoSpider(scrapy.Spider):
 
     def parse_page(self, response):
         item = response.meta['item']
+        title = item['title']
         sel = Selector(response)
         content = sel.xpath('//div[@id="BookContent"]/text()').extract()
-        content = polish_content(content)
+        content = polish_content(content, title=title)
         item['content'] = content
         return item
 
