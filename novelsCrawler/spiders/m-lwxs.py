@@ -8,21 +8,21 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
 
-class ExampleSpider(scrapy.Spider):
+class MlwxsSpider(scrapy.Spider):
     """
     classdocs
 
     example: http://m.lwxs.com/wapbook/44108_1/
     """
 
-    dom = 'www.example.com'
+    dom = 'm.lwxs.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 
     # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
 
     def __init__(self, *args, **kwargs):
-        super(ExampleSpider, self).__init__(*args, **kwargs)
+        super(MlwxsSpider, self).__init__(*args, **kwargs)
         self.start_urls = kwargs['start_urls']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         print(self.start_urls)
