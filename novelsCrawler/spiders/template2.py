@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 """
-Created on  2016
+Created on April 15 2017
 
 @author: yytang
 """
@@ -18,23 +18,18 @@ class ExampleMobileSpider(scrapy.Spider):
     """
     classdocs
 
-    example: http://m.yushuwu.net/novel/list/35797/1.html
+    example: http://m.daomengren.com/wapbook-7922/
     """
 
-    dom = 'www.example.com'
+    dom = 'm.example.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
-    tmpDirPath = settings['TMP_DIR']
 
-    # def start_requests(self):
-    #     print("start")
-    #     urlPath = os.path.join(self.tmpDirPath, self.name);
-    #     fd = open(urlPath, 'r')
-    #     urls = fd.readlines()
-    #     fd.close()
-    #     for url in urls:
-    #         url = url.strip('\n').strip()
-    #         yield self.make_requests_from_url(url)
+    def __init__(self, *args, **kwargs):
+        super(ExampleMobileSpider, self).__init__(*args, **kwargs)
+        self.start_urls = kwargs['start_urls']
+        self.tmp_novels_dir = kwargs['tmp_novels_dir']
+        print(self.start_urls)
 
     def parse(self, response):
         start_page_key = 'startPage'
@@ -60,67 +55,47 @@ class ExampleMobileSpider(scrapy.Spider):
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
-        dd = sel.xpath('//ul[@class="chapter"]/li/a')
-        chapterItems = []
-        chapterIds = []
-        webUrlNums = len(dd)
-        for i in range(0, webUrlNums):
-            chapterItem = {}
-            d = dd[i]
-            url = d.xpath('@href').extract()[0]
-            url = response.urljoin(url.strip())
-            chapterItem['url'] = url
-            subtitle = d.xpath('text()').extract()[0]
-            subtitle = polishSubtitle(subtitle)
-            chapterItem['subtitle'] = subtitle
-            chapterItem['id'] = i + start_page
-            chapterItem['title'] = title
-            chapterItem['type'] = 'novels'
-            chapterItems.append(chapterItem)
-            chapterIds.append(chapterItem['id'])
-        chapterIds.sort()
-        page_index = page_index + chapterIds
-        newChapterIds = polishChapterIds(title, chapterIds)
+        subtitle_selectors = sel.xpath('//ul[@class="chapter"]/li/a')
+        all_pages = [i + start_page for i in range(0, len(subtitle_selectors))]
+        page_index += all_pages
+        download_pages = polish_pages(tmp_spider_root_dir, all_pages)
 
-        for chapterItem in chapterItems:
-            i = chapterItem['id']
-            if i in newChapterIds:
-                url = chapterItem['url']
-                request = scrapy.Request(url, callback=self.parse_page)
-                item = NovelsItem()
-                item['title'] = chapterItem['title']
-                item['subtitle'] = chapterItem['subtitle']
-                item['id'] = chapterItem['id']
-                item['type'] = chapterItem['type']
+        """Traverse the subtitle_selectors only crawler the pages that haven't been downloaded yet"""
+        for i, subtitle_selector in enumerate(subtitle_selectors):
+            page_id = i + start_page
+            if page_id not in set(download_pages):
+                continue
+            else:
+                subtitle_url = subtitle_selector.xpath('@href').extract()[0]
+                subtitle_url = response.urljoin(subtitle_url.strip())
+                subtitle_name = subtitle_selector.xpath('text()').extract()[0]
+                subtitle_name = polish_subtitle(subtitle_name)
+
+                item = NovelsCrawlerItem()
+                item['title'] = title
+                item['id'] = page_id
+                item['subtitle'] = subtitle_name
+                item['root_dir'] = tmp_spider_root_dir
+                request = scrapy.Request(subtitle_url, callback=self.parse_page)
                 request.meta['item'] = item
                 yield request
 
         """ The following is useful only when multiple pages are downloaded """
-        aa = sel.xpath('//div[@class="page"]/a')
-        nextPageUrl = ''
-        for a in aa:
-            text = a.xpath('text()').extract()[0]
-            nextPageUrl = ''
-            if text == '下一页'.decode('utf-8'):
-                nextPageUrl = a.xpath('@href').extract()[0]
-                nextPageUrl = response.urljoin(nextPageUrl.strip())
-                print(nextPageUrl)
-                break
-
-        if nextPageUrl != '':
-            request = scrapy.Request(nextPageUrl, callback=self.parse)
-            request.meta[start_page_key] = webUrlNums + start_page
+        next_page_url_list = sel.xpath('//div[@class="page"]/a[contains(text(), "下一页")]/@href').extract()
+        if len(next_page_url_list) != 0:
+            next_page_url = next_page_url_list[0]
+            request = scrapy.Request(response.urljoin(next_page_url.strip()), callback=self.parse)
+            request.meta[start_page_key] = len(subtitle_selectors) + start_page
             request.meta[title_key] = title
             request.meta[index_key] = page_index
             yield request
         else:
-            page_index.sort()
-            saveIndex(title, response.url, page_index, True)
+            save_index(title, response.url, tmp_spider_root_dir, page_index)
 
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
         content = sel.xpath('//div[@id="nr1"]/text()').extract()
-        content = polishContent(content)
+        content = polish_content(content)
         item['content'] = content
         return item
