@@ -8,6 +8,8 @@ from libs.misc import *
 from collections import defaultdict
 import os
 
+from libs.urlcheck import url_check
+
 
 class NovelsCrawler:
     crawler_process = CrawlerProcess(get_project_settings())
@@ -53,8 +55,10 @@ class NovelsCrawler:
             with open(self.url_path, 'r') as f:
                 # 1. Remove the spaces
                 # 2. Remove the urls not supported
+                # 3. Convert the urls to supported format
                 urls = [url.strip() for url in f.readlines() if len(url.strip()) != 0]
                 urls = [url for url in urls if get_domain_from_url(url) in self.allowed_domains]
+                urls = [url_check(url) for url in urls]
         else:
             self._start_urls = defaultdict(lambda: [])
 

@@ -27,23 +27,9 @@ class MlwxsSpider(scrapy.Spider):
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         print(self.start_urls)
 
-    def start_requests(self):
-        for url in self.start_urls:
-            url = self.format_checking(url)
-            if url is not None:
-                yield self.make_requests_from_url(url)
-            else:
-                print('Unsupported url')
-
-    def format_checking(self, url):
-        legal_pattern = 'http://m.lwxs.com/wapbook/[\d]+_1/'
-        error_pattern = 'http://m.lwxs.com/wapbook/([\d]+).html'
-        if re.match(legal_pattern, url) is not None:
-            return url
-        elif re.search(error_pattern, url) is not None:
-            return 'http://m.lwxs.com/wapbook/{0}_1/'.format(re.search(error_pattern, url).group(1))
-        else:
-            return None
+    # def start_requests(self):
+    #     for url in self.start_urls:
+    #         yield self.make_requests_from_url(url)
 
     def parse(self, response):
         sel = Selector(response)
