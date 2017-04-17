@@ -13,5 +13,11 @@ def url_check(url):
     if re.search(mlwxs_pattern, url) is not None:
         return 'http://m.lwxs.com/wapbook/{0}_1/'.format(re.search(mlwxs_pattern, url).group(1))
 
+    # http://m.xiaoshuocity123.com/bookM/00486/hbdyyt_243349/chapter.html
+    m_xiaoshuocity123_pattern = 'http://m.xiaoshuocity123.com/bookM/(.+)/chapter.html'
+    if re.search(m_xiaoshuocity123_pattern, url) is not None:
+        return 'http://www.xiaoshuocity123.com/book/{0}/chapter.html'.format(
+            re.search(m_xiaoshuocity123_pattern, url).group(1))
+
     return url
 

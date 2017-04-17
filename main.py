@@ -54,11 +54,11 @@ class NovelsCrawler:
         if not urls:
             with open(self.url_path, 'r') as f:
                 # 1. Remove the spaces
-                # 2. Remove the urls not supported
-                # 3. Convert the urls to supported format
+                # 2. Convert the urls to supported format
+                # 3. Remove the urls not supported
                 urls = [url.strip() for url in f.readlines() if len(url.strip()) != 0]
-                urls = [url for url in urls if get_domain_from_url(url) in self.allowed_domains]
                 urls = [url_check(url) for url in urls]
+                urls = [url for url in urls if get_domain_from_url(url) in self.allowed_domains]
         else:
             self._start_urls = defaultdict(lambda: [])
 
