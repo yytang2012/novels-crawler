@@ -74,7 +74,7 @@ class LewenxiaoshuoSpider(scrapy.Spider):
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/text()').extract()
+        content = sel.xpath('//div[@id="content"]//text()').extract()
         content = polish_content(content)
         item['content'] = content
         return item
