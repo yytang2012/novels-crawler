@@ -19,13 +19,19 @@ class ExampleSpider(scrapy.Spider):
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 
-    # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
-
     def __init__(self, *args, **kwargs):
         super(ExampleSpider, self).__init__(*args, **kwargs)
-        self.start_urls = kwargs['start_urls']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
+        urls = kwargs['start_urls']
+        self.start_urls = [self.url_check(url) for url in urls]
         print(self.start_urls)
+
+    def url_check(self, url):
+        # pattern = 'http://m.lwxs.com/wapbook/([\d]+).html'
+        # m = re.search(pattern, url)
+        # if m is not None:
+        #     return 'http://m.lwxs.com/wapbook/{0}_1/'.format(m.group(1))
+        return url
 
     # def start_requests(self):
     #     for url in self.start_urls:

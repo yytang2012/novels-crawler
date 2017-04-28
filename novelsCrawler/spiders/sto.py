@@ -22,13 +22,21 @@ class StoSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(StoSpider, self).__init__(*args, **kwargs)
-        self.start_urls = kwargs['start_urls']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
+        urls = kwargs['start_urls']
+        self.start_urls = [self.url_check(url) for url in urls]
         print(self.start_urls)
 
     # def start_requests(self):
     #     for url in self.start_urls:
     #         yield self.make_requests_from_url(url)
+
+    def url_check(self, url):
+        pattern = 'http://www.sto.cc/mbook-(\d+)-\d+.html'
+        m = re.search(pattern, url)
+        if m is not None:
+            return 'http://www.sto.cc/{0}-1/'.format(m.group(1))
+        return url
 
     def parse(self, response):
         sel = Selector(response)

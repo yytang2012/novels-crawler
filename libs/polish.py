@@ -69,6 +69,7 @@ def polish_content(content, num=0, word_convert=True):
         '艳': '艷',
         '迈': '邁',
         '鉴': '鑒',
+        'zha': '炸',
     }
     enters = '\n\n'
     res = []
