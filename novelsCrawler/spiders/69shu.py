@@ -8,22 +8,19 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
 
-class QuanbenioSpider(scrapy.Spider):
+class Six9shuSpider(scrapy.Spider):
     """
     classdocs
 
-    example: http://www.quanben.io/n/nuhuangjishi/list.html
+    example: http://www.69shu.com/24851/
     """
 
-    dom = 'www.quanben.io'
+    dom = 'www.69shu.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
-    # custom_settings = {
-    #     'DOWNLOAD_DELAY': 2,
-    # }
 
     def __init__(self, *args, **kwargs):
-        super(QuanbenioSpider, self).__init__(*args, **kwargs)
+        super(Six9shuSpider, self).__init__(*args, **kwargs)
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         urls = kwargs['start_urls']
         self.start_urls = [self.url_check(url) for url in urls]
@@ -43,13 +40,14 @@ class QuanbenioSpider(scrapy.Spider):
     def parse(self, response):
         sel = Selector(response)
         title = sel.xpath('//h1/text()').extract()[0]
-        title = polish_title(title, self.name)
+        title = polish_title(title, self.name, useless_ending='最新章节列表')
         print(title)
         tmp_spider_root_dir = os.path.join(self.tmp_novels_dir, title)
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
-        subtitle_selectors = sel.xpath('//ul[@class="list3"]/li/a')
+        subtitle_selectors = sel.xpath('//div[@class="mu_contain"]')
+        subtitle_selectors = subtitle_selectors[1].xpath('ul[@class="mulu_list"]/li/a')
         all_pages = [i + 1 for i in range(0, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(tmp_spider_root_dir, all_pages)
@@ -62,7 +60,7 @@ class QuanbenioSpider(scrapy.Spider):
             else:
                 subtitle_url = subtitle_selector.xpath('@href').extract()[0]
                 subtitle_url = response.urljoin(subtitle_url.strip())
-                subtitle_name = subtitle_selector.xpath('span/text()').extract()[0]
+                subtitle_name = subtitle_selector.xpath('text()').extract()[0]
                 subtitle_name = polish_subtitle(subtitle_name)
 
                 item = NovelsCrawlerItem()
@@ -77,7 +75,7 @@ class QuanbenioSpider(scrapy.Spider):
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        content = sel.xpath('//div[@class="articlebody"]//p/text()').extract()
+        content = sel.xpath('//div[@class="yd_text2"]/text()').extract()
         content = polish_content(content)
         item['content'] = content
         return item

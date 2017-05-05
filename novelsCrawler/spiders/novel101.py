@@ -8,22 +8,19 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 
 
-class QuanbenioSpider(scrapy.Spider):
+class Novel101Spider(scrapy.Spider):
     """
     classdocs
 
-    example: http://www.quanben.io/n/nuhuangjishi/list.html
+    example: https://novel101.com/novels/cd7c809c-847e-48b3-9d25-6e12e827e40e
     """
 
-    dom = 'www.quanben.io'
+    dom = 'novel101.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
-    # custom_settings = {
-    #     'DOWNLOAD_DELAY': 2,
-    # }
 
     def __init__(self, *args, **kwargs):
-        super(QuanbenioSpider, self).__init__(*args, **kwargs)
+        super(Novel101Spider, self).__init__(*args, **kwargs)
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         urls = kwargs['start_urls']
         self.start_urls = [self.url_check(url) for url in urls]
@@ -49,7 +46,7 @@ class QuanbenioSpider(scrapy.Spider):
         if not os.path.isdir(tmp_spider_root_dir):
             os.makedirs(tmp_spider_root_dir)
 
-        subtitle_selectors = sel.xpath('//ul[@class="list3"]/li/a')
+        subtitle_selectors = sel.xpath('//div[@class="list-group"]/a[@class="list-group-item"]')
         all_pages = [i + 1 for i in range(0, len(subtitle_selectors))]
         save_index(title, response.url, tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(tmp_spider_root_dir, all_pages)
@@ -62,7 +59,7 @@ class QuanbenioSpider(scrapy.Spider):
             else:
                 subtitle_url = subtitle_selector.xpath('@href').extract()[0]
                 subtitle_url = response.urljoin(subtitle_url.strip())
-                subtitle_name = subtitle_selector.xpath('span/text()').extract()[0]
+                subtitle_name = subtitle_selector.xpath('h4/text()').extract()[0]
                 subtitle_name = polish_subtitle(subtitle_name)
 
                 item = NovelsCrawlerItem()
@@ -77,7 +74,7 @@ class QuanbenioSpider(scrapy.Spider):
     def parse_page(self, response):
         item = response.meta['item']
         sel = Selector(response)
-        content = sel.xpath('//div[@class="articlebody"]//p/text()').extract()
+        content = sel.xpath('//div[@class="body"]/p/text()').extract()
         content = polish_content(content)
         item['content'] = content
         return item
