@@ -53,6 +53,16 @@ def polish_pages(tmp_spider_root_dir, pages):
     return pages
 
 
+def existing_pages(tmp_spider_root_dir):
+    pages = []
+    pattern = r'([\d]+)\.txt'
+    for file in os.listdir(tmp_spider_root_dir):
+        m = re.match(pattern, file)
+        if m is not None:
+            pages.append(int(m.group(1)))
+    return pages
+
+
 def polish_content(content, num=0, word_convert=True):
     replace_dict = {
         '「': '“',
