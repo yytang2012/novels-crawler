@@ -7,14 +7,14 @@ from libs.polish import polish_title, polish_subtitle, polish_content
 from novelsCrawler.spiders.novelSpider import NovelSpider
 
 
-class ExampleSpider(NovelSpider):
+class LwxiaoshuoSpider(NovelSpider):
     """
     classdocs
 
-    example: http://lwxiaoshuo.com/20/20684/index.html
+    example: http://www.kanshuge.la/files/article/html/33/33050/
     """
 
-    dom = 'www.example.com'
+    dom = 'www.kanshuge.la'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 
@@ -27,7 +27,7 @@ class ExampleSpider(NovelSpider):
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//td/div[@class="dccss"]/a')
+        subtitle_selectors = sel.xpath('//dl[@class="chapterlist"]/dd/a')
         for i, subtitle_selector in enumerate(subtitle_selectors):
             page_id = i + 1
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
@@ -39,6 +39,7 @@ class ExampleSpider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/p/text()').extract()
+        content = sel.xpath('//div[@id="BookText"]/text()').extract()
         content = polish_content(content)
         return content
+

@@ -42,4 +42,3 @@ class LwxiaoshuoSpider(NovelSpider):
         content = sel.xpath('//div[@id="content"]/p/text()').extract()
         content = polish_content(content)
         return content
-
