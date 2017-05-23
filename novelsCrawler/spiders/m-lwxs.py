@@ -23,6 +23,7 @@ class MlwxsSpider(scrapy.Spider):
         super(MlwxsSpider, self).__init__(*args, **kwargs)
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         urls = kwargs['start_urls']
+        self.to_original_url_dict = {}
         self.start_urls = [self.url_check(url) for url in urls]
         print(self.start_urls)
 
@@ -30,8 +31,12 @@ class MlwxsSpider(scrapy.Spider):
         pattern = 'http://m.lwxs.com/wapbook/([\d]+).html'
         m = re.search(pattern, url)
         if m is not None:
-            return 'http://m.lwxs.com/wapbook/{0}_1/'.format(m.group(1))
-        return url
+            new_url = 'http://m.lwxs.com/wapbook/{0}_1/'.format(m.group(1))
+            self.to_original_url_dict[new_url] = url
+            return new_url
+        else:
+            self.to_original_url_dict[url] = url
+            return url
 
     # def start_requests(self):
     #     for url in self.start_urls:
@@ -48,7 +53,7 @@ class MlwxsSpider(scrapy.Spider):
 
         subtitle_selectors = sel.xpath('//ul[@class="chapter"]/li/a')
         all_pages = [i + 1 for i in range(0, len(subtitle_selectors))]
-        save_index(title, response.url, tmp_spider_root_dir, all_pages)
+        save_index(title, self.to_original_url_dict[response.url], tmp_spider_root_dir, all_pages)
         download_pages = polish_pages(tmp_spider_root_dir, all_pages)
 
         # Traverse the subtitle_selectors only crawler the pages that haven't been downloaded yet
