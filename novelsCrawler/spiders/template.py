@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding=utf-8
+"""
+Created on April 15 2017
+
+@author: yytang
+"""
 
 from scrapy import Selector
 
@@ -28,8 +34,7 @@ class ExampleSpider(NovelSpider):
         sel = Selector(response)
         episoders = []
         subtitle_selectors = sel.xpath('//td/div[@class="dccss"]/a')
-        for i, subtitle_selector in enumerate(subtitle_selectors):
-            page_id = i + 1
+        for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
             subtitle_name = subtitle_selector.xpath('text()').extract()[0]

@@ -60,7 +60,14 @@ class YushuwuNetMobileSpider(scrapy.Spider):
             os.makedirs(tmp_spider_root_dir)
 
         subtitle_selectors = sel.xpath('//ul/li/a')
-        subtitle_selectors = subtitle_selectors[1:]
+        subtitle_selectors = subtitle_selectors[1:-1]
+
+        def cmp(item):
+            text = item.xpath('text()').extract()[0]
+            p = '[^\d]+([\d]+)'
+            return int(re.search(p, text).group(1))
+
+        subtitle_selectors.sort(key=cmp)
         all_pages = [i + start_page for i in range(0, len(subtitle_selectors))]
         page_index += all_pages
         download_pages = polish_pages(tmp_spider_root_dir, all_pages)
@@ -90,7 +97,7 @@ class YushuwuNetMobileSpider(scrapy.Spider):
 
         """ The following is useful only when multiple pages are downloaded """
         next_page_url = sel.xpath('//div[@id="page"]/a[contains(text(), "下一页")]/@href').extract()[0]
-        if next_page_url != 'javascript:void(0);':
+        if 'javascript' not in next_page_url:
             request = scrapy.Request(response.urljoin(next_page_url.strip()), callback=self.parse)
             request.meta[start_page_key] = len(subtitle_selectors) + start_page
             request.meta[title_key] = title
