@@ -12,11 +12,14 @@ class ShumilouSpider(NovelSpider):
     classdocs
 
     example: http://www.shumilou.co/zhongshengnvdihuoluantianxia/
+    http://m.shumilou.co/yufugonglue/list.html
     """
 
-    dom = 'www.shumilou.co'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
+    allowed_domains = ['www.shumilou.co', 'm.shumilou.co']
+    name = get_spider_name_from_domain(allowed_domains[0])
+
+    def url_check(self, url):
+        return url.replace('m.shumilou.co', 'www.shumilou.co')
 
     def parse_title(self, response):
         sel = Selector(response)

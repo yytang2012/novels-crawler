@@ -62,7 +62,7 @@ class QuanbenioSpider(scrapy.Spider):
             else:
                 subtitle_url = subtitle_selector.xpath('@href').extract()[0]
                 subtitle_url = response.urljoin(subtitle_url.strip())
-                subtitle_name = subtitle_selector.xpath('text()').extract()[0]
+                subtitle_name = subtitle_selector.xpath('span/text() | text()').extract()[0]
                 subtitle_name = polish_subtitle(subtitle_name)
 
                 item = NovelsCrawlerItem()

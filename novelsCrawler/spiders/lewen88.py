@@ -17,11 +17,12 @@ class ExampleSpider(NovelSpider):
     """
     classdocs
 
-    example: http://lwxiaoshuo.com/20/20684/index.html
+    example: http://www.lewen88.com/4/4389/
     """
 
-    allowed_domains = ['www.example.com']
-    name = get_spider_name_from_domain(allowed_domains[0])
+    dom = 'www.lewen88.com'
+    name = get_spider_name_from_domain(dom)
+    allowed_domains = [dom]
 
     def parse_title(self, response):
         sel = Selector(response)
@@ -32,7 +33,7 @@ class ExampleSpider(NovelSpider):
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//td/div[@class="dccss"]/a')
+        subtitle_selectors = sel.xpath('//div[@class="panel-body"]/ul[@class="list-group list-charts"]/li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
@@ -43,6 +44,6 @@ class ExampleSpider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/p/text()').extract()
+        content = sel.xpath('//div[@class="panel-body content-body content-ext"]/text()').extract()
         content = polish_content(content)
         return content
