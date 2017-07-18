@@ -12,7 +12,7 @@ class StoSpider(scrapy.Spider):
     """
     classdocs
 
-    example: http://www.sto.cc/123331-1/
+    example: https://www.sto.cc/book-8976-1.html
     """
 
     dom = 'www.sto.cc'
@@ -50,17 +50,17 @@ class StoSpider(scrapy.Spider):
 
         # Get the last page number
         last_url = sel.xpath('//div[@id="webPage"]/a/@href').extract()[-1]
-        max_page = int(re.match(u'[^-]*-(\d+)/', last_url).group(1))
+        max_page = int(re.search(r'(\d+).html', last_url).group(1))
 
         # Get the url prefix
-        page_url_prefix = re.match(u'([^-]*)', response.url).group(0)
+        page_url_prefix = re.match(r'(.+)-\d+\.html', response.url).group(1)
 
         web_pages = []
         web_url = response.url
         web_items = []
         for i in range(1, max_page + 1):
             page_item = {}
-            url = "%s-%d" % (page_url_prefix, i)
+            url = "%s-%d.html" % (page_url_prefix, i)
             page_item['url'] = url
             subtitle = ''
             page_item['subtitle'] = subtitle
