@@ -109,6 +109,7 @@ class NovelSpider(scrapy.Spider):
             request.meta[start_url_key] = start_url
             yield request
         else:
+            all_pages.sort()
             save_index(title, self.start_urls_dict[start_url], tmp_spider_root_dir, all_pages)
 
     def parse_page(self, response):

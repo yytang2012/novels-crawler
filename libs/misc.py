@@ -52,3 +52,22 @@ def load_from_json(filePath):
     else:
         data = None
     return data
+
+
+def page_convert(page, n):
+    left = page % n if page % n != 0 else n
+    value = page - left
+    tmp = value + (n - left) + 1
+    return tmp
+
+
+def page_convert_from_zero(page, n):
+    tmp = page + 1
+    return page_convert(tmp, n) - 1
+
+
+if __name__ == '__main__':
+    page = 5
+    n = 3
+    new_page = page_convert_from_zero(page, n)
+    print(new_page)
