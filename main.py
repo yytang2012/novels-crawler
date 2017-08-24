@@ -72,7 +72,12 @@ class NovelsCrawler:
                 self.crawler_process.crawl(spider_name, start_urls=start_urls, tmp_novels_dir=self.tmp_novels_dir)
             except KeyError:
                 """ we remove the m prefix of the spider_name """
-                spider_name = spider_name[1:]
+                prefix_separator, suffix_separator = get_name_separators()
+                prefix_separator_pos = spider_name.find(prefix_separator)
+                if prefix_separator_pos == 0:
+                    spider_name = 'm' + spider_name
+                else:
+                    spider_name = spider_name[prefix_separator_pos:]
                 self.crawler_process.crawl(spider_name, start_urls=start_urls, tmp_novels_dir=self.tmp_novels_dir)
         self.crawler_process.start()
         print("Stage: start combining pages to novels")

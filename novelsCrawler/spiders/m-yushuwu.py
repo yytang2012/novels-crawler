@@ -17,18 +17,30 @@ class YushuwuMobileSpider(NovelSpider):
     """
     classdocs
 
-    example: https://m.yushuwu.com/novel/list/31271/1.html
+    examples:   https://m.yushuwu.com/novel/list/31271/1.html
+                https://www.yushuwu.com/read/32570/
     """
 
-    dom = 'm.yushuwu.com'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
+    allowed_domains = ['m.yushuwu.com', 'www.yushuwu.com']
+    name = get_spider_name_from_domain(allowed_domains[0])
 
     def parse_title(self, response):
         sel = Selector(response)
         title = sel.xpath('//title/text()').extract()[0]
         title = polish_title(title, self.name)
         return title
+
+    def url_check(self, url):
+        pattern = 'https://www.yushuwu.com/read/([\d]+)'
+        m = re.search(pattern, url)
+        if m is not None:
+            return 'https://m.yushuwu.com/novel/list/{0}/1.html/'.format(m.group(1))
+
+        pattern1 = 'https://m.yushuwu.com/novel/([\d]+).html'
+        m = re.search(pattern1, url)
+        if m is not None:
+            return 'https://m.yushuwu.com/novel/list/{0}/1.html/'.format(m.group(1))
+        return url
 
     def parse_episoders(self, response):
         sel = Selector(response)

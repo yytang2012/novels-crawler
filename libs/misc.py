@@ -11,12 +11,19 @@ import re
 import time
 
 
+def get_name_separators():
+    prefix_separator = '.'
+    suffix_separator = ''
+    return prefix_separator, suffix_separator
+
+
 def get_spider_name_from_domain(dom):
     nameList = dom.split('.')
     prefix = ('' if len(nameList) == 2 or nameList[0] == 'www' else nameList[0])
     name = nameList[-2]
     suffix = ('' if nameList[-1] == 'com' else nameList[-1])
-    spider_name = prefix + name + suffix
+    prefix_separator, suffix_separator = get_name_separators()
+    spider_name = prefix + prefix_separator + name + suffix_separator + suffix
     return spider_name
 
 
