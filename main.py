@@ -18,22 +18,25 @@ class NovelsCrawler:
 
     def __init__(self):
         self._start_urls = defaultdict(lambda: [])
-        self.root_dir = os.path.expanduser(settings['ROOT_DIR'])
+        self.init_directories()
+        self.allowed_domains = self.get_allowed_domains(True)
+
+    def init_directories(self):
+        self.root_dir = settings['ROOT_DIR']
         if not os.path.isdir(self.root_dir):
             os.makedirs(self.root_dir)
-        self.tmp_novels_dir = os.path.join(self.root_dir, settings['TMP_DIR'])
+        self.tmp_novels_dir = settings['TMP_DIR']
         if not os.path.isdir(self.tmp_novels_dir):
             os.makedirs(self.tmp_novels_dir)
-        self.url_path = os.path.join(self.root_dir, settings['URL_FILE'])
-        self.log_path = os.path.join(self.root_dir, settings['LOG'])
-        self.downloads_path = os.path.join(self.root_dir, settings['DOWNLOADS'])
+        self.url_path = settings['URL_FILE']
+        self.log_path = settings['LOG_PATH']
+        self.downloads_path = settings['DOWNLOADS']
         if not os.path.isdir(self.downloads_path):
             os.makedirs(self.downloads_path)
         self.index = settings['INDEX_FILE']
-        token_path = os.path.join(self.root_dir, settings['DROPBOX_TOKEN'])
+        token_path = settings['DROPBOX_TOKEN']
         [self.token] = load_from_json(token_path)
 
-        self.allowed_domains = self.get_allowed_domains(True)
 
     def get_allowed_domains(self, write_to_file=False):
         allowed_domains = []
@@ -119,13 +122,13 @@ class NovelsCrawler:
                     for page in pages:
                         page_path = os.path.join(novel_dir, '{0}.txt'.format(page))
                         try:
-                            with open(page_path, 'r') as f:
+                            with open(page_path, 'r', encoding='utf-8') as f:
                                 contents += f.read()
                         except Exception:
                             contents = ''
                             break
                     if len(contents) != 0:
-                        with open(novel_output, 'w') as f:
+                        with open(novel_output, 'w', encoding='utf-8') as f:
                             f.write(contents)
                         shutil.rmtree(novel_dir)
                         novels.append((title, urls))
@@ -145,9 +148,9 @@ class NovelsCrawler:
         for item in novels:
             (title, urls) = item
             new_log += "\t%-30s\t%-s\n" % (title, urls)
-        log_content = new_log + '\n' + log_content
+        log_content = '{0}\n{1}'.format(new_log, log_content)
 
-        with open(self.log_path, 'w') as f:
+        with open(self.log_path, 'w', encoding='utf-8') as f:
             f.write(log_content)
 
     def upload_to_dropbox(self, novels):
@@ -155,7 +158,7 @@ class NovelsCrawler:
         logfile = settings['LOG']
         # Download old log from Dropbox
         log_content = dbx_api.download('', 'Configuration', logfile)
-        log_content = log_content.decode('utf-8')
+        # log_content = log_content.decode('utf-8')
 
         # Generate the new log and write it to local log
         curTime = time.strftime('%Y-%m-%d %X', time.localtime())
@@ -163,7 +166,7 @@ class NovelsCrawler:
         for item in novels:
             (title, urls) = item
             new_log += "\t%-30s\t%-s\n" % (title, urls)
-        log_content = new_log + '\n' + log_content
+        log_content = '{0}\n{1}'.format(new_log, log_content)
         with open(self.log_path, 'w') as f:
             f.write(log_content)
 

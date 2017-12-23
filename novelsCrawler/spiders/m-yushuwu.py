@@ -48,12 +48,20 @@ class YushuwuMobileSpider(NovelSpider):
         subtitle_selectors = sel.xpath('//ul/li/a')
         subtitle_selectors = subtitle_selectors[1:-1]
 
-        def cmp(item):
+        # def cmp(item):
+        #     text = item.xpath('text()').extract()[0]
+        #     p = '[^\d]*([\d]+)'
+        #     return int(re.search(p, text).group(1))
+        #
+        # subtitle_selectors.sort(key=cmp)
+        def get_chapter_index(item):
             text = item.xpath('text()').extract()[0]
-            p = '[^\d]+([\d]+)'
+            p = '[^\d]*([\d]+)'
             return int(re.search(p, text).group(1))
-
-        subtitle_selectors.sort(key=cmp)
+        first_episoder_idx = get_chapter_index(subtitle_selectors[0])
+        last_episoder_idx = get_chapter_index(subtitle_selectors[-1])
+        if first_episoder_idx > last_episoder_idx:
+            subtitle_selectors = subtitle_selectors[::-1]
 
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
