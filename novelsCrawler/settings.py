@@ -8,6 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
+import os
 
 BOT_NAME = 'novelsCrawler'
 
@@ -21,14 +22,17 @@ NEWSPIDER_MODULE = 'novelsCrawler.spiders'
 ROBOTSTXT_OBEY = False
 
 # NovelsCrawler
-URL_FILE = 'urlfile'
-TMP_DIR = 'tmpNovels'
+# ROOT_DIR = '~/novels'
+ROOT_DIR = os.path.join(os.getcwd(), 'userData')
+URL_FILE = os.path.join(ROOT_DIR, 'urlfile')
+TMP_DIR = os.path.join(ROOT_DIR, 'tmpNovels')
+LOG_PATH = os.path.join(ROOT_DIR, 'Download-history.log')
 LOG = 'Download-history.log'
-ROOT_DIR = '~/novels'
-DOWNLOADS = 'downloads'
+CONFIGURATION = os.path.join(ROOT_DIR, 'configurations')
+DOWNLOADS = os.path.join(ROOT_DIR, 'downloads')
 INDEX_FILE = 'index'
-DROPBOX_TOKEN = 'dropbox-token'
-PROXY_FILE = '~/novels/proxy-file.txt'
+DROPBOX_TOKEN = os.path.join(CONFIGURATION, 'dropbox-token.dat')
+PROXY_FILE = os.path.join(ROOT_DIR, 'proxy-file.txt')
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32

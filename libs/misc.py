@@ -12,7 +12,7 @@ import time
 
 
 def get_name_separators():
-    prefix_separator = '.'
+    prefix_separator = ''
     suffix_separator = ''
     return prefix_separator, suffix_separator
 
