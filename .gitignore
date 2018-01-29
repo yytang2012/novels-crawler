@@ -89,5 +89,5 @@ ENV/
 .ropeproject
 
 userData/*
-.idea/*
+.idea/
 temp/
