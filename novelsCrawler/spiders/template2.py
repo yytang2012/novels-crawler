@@ -50,7 +50,8 @@ class ExampleMobileSpider(NovelSpider):
 
     def get_next_page_url(self, response):
         sel = Selector(response)
-        next_page_url_list = sel.xpath('//div[@class="page"]/a[contains(text(), "下一页")]/@href').extract()
+        next_page_url_list = \
+            sel.xpath('//div[@class="page"]/a[contains(text(), "下一页") or contains(text(), "下一頁")]/@href').extract()
         if len(next_page_url_list) != 0:
             next_page_url = next_page_url_list[0]
             return next_page_url

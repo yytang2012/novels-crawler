@@ -9,33 +9,31 @@ Created on April 15 2017
 from scrapy import Selector
 
 from libs.misc import get_spider_name_from_domain
-from libs.polish import polish_title, polish_subtitle, polish_content
+from libs.polish import *
 from novelsCrawler.spiders.novelSpider import NovelSpider
 
 
-class ExampleSpider(NovelSpider):
+class MwfxsMobileSpider(NovelSpider):
     """
     classdocs
 
-    example: http://lwxiaoshuo.com/20/20684/index.html
+    example: https://m.wfxs.org/html/46752/
     """
 
-    allowed_domains = ['www.example.com']
-    name = get_spider_name_from_domain(allowed_domains[0])
-    # custom_settings = {
-    #     'DOWNLOAD_DELAY': 0.3,
-    # }
+    dom = 'm.wfxs.org'
+    name = get_spider_name_from_domain(dom)
+    allowed_domains = [dom]
 
     def parse_title(self, response):
         sel = Selector(response)
-        title = sel.xpath('//h1/text()').extract()[0]
+        title = sel.xpath('//h3/text()').extract()[0]
         title = polish_title(title, self.name)
         return title
 
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//td/div[@class="dccss"]/a')
+        subtitle_selectors = sel.xpath('//ul[@class="chapter"]/li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
@@ -46,6 +44,16 @@ class ExampleSpider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/p/text()').extract()
+        content = sel.xpath('//div[@id="nr1"]/text()').extract()
         content = polish_content(content)
         return content
+
+    def get_next_page_url(self, response):
+        sel = Selector(response)
+        next_page_url_list = \
+            sel.xpath('//div[@class="page"]/a[contains(text(), "下一页") or contains(text(), "下一頁")]/@href').extract()
+        if len(next_page_url_list) != 0:
+            next_page_url = next_page_url_list[0]
+            return next_page_url
+        else:
+            return None

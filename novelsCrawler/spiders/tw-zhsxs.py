@@ -17,14 +17,14 @@ class ExampleSpider(NovelSpider):
     """
     classdocs
 
-    example: http://lwxiaoshuo.com/20/20684/index.html
+    example: http://tw.zhsxs.com/zhschapter/43641.html
     """
 
-    allowed_domains = ['www.example.com']
+    allowed_domains = ['tw.zhsxs.com']
     name = get_spider_name_from_domain(allowed_domains[0])
-    # custom_settings = {
-    #     'DOWNLOAD_DELAY': 0.3,
-    # }
+    custom_settings = {
+        'DOWNLOAD_DELAY': 0.3,
+    }
 
     def parse_title(self, response):
         sel = Selector(response)
@@ -35,7 +35,7 @@ class ExampleSpider(NovelSpider):
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//td/div[@class="dccss"]/a')
+        subtitle_selectors = sel.xpath('//tr/td[@class="chapterlist"]/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
@@ -46,6 +46,6 @@ class ExampleSpider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/p/text()').extract()
+        content = sel.xpath('//div[@style="font-size: 20px; line-height: 30px; word-wrap: break-word; table-layout: fixed; word-break: break-all; width: 700px; margin: 0 auto; text-indent: 2em; color: Black;"]/text()').extract()
         content = polish_content(content)
         return content
