@@ -14,9 +14,8 @@ class LwxiaoshuoSpider(NovelSpider):
     example: http://lwxiaoshuo.com/20/20684/index.html
     """
 
-    dom = 'lwxiaoshuo.com'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
+    allowed_domains = ['lwxiaoshuo.com']
+    name = get_spider_name_from_domain(allowed_domains[0])
 
     def parse_title(self, response):
         sel = Selector(response)
