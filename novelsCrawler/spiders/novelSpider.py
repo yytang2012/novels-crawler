@@ -33,6 +33,7 @@ class NovelSpider(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(NovelSpider, self).__init__(*args, **kwargs)
+        self.downloads_dir = kwargs['downloads_dir']
         self.tmp_novels_dir = kwargs['tmp_novels_dir']
         urls = kwargs['start_urls']
         self.start_urls_dict = {}
@@ -77,6 +78,10 @@ class NovelSpider(scrapy.Spider):
             title = response.meta[title_key]
         else:
             title = self.parse_title(response=response)
+
+        # """ If the file exist in the downloads folder, no need to redo it """
+        # if os.path.isfile(os.path.join(self.downloads_dir, title + '.txt')):
+        #     return
 
         """ Make sure a corresponding directory is created for the novel """
         tmp_spider_root_dir = os.path.join(self.tmp_novels_dir, title)

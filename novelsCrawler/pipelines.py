@@ -16,8 +16,9 @@ class NovelsCrawlerPipeline(object):
         novel_path = os.path.join(root_dir, str(page_id) + '.txt')
         if not os.path.isfile(novel_path):
             with open(novel_path, 'w', encoding='utf-8') as fd:
-                print(subtitle)
-                fd.write(subtitle)
+                if subtitle != '':
+                    print(subtitle)
+                    fd.write(subtitle)
                 for cc in content:
                     fd.write(cc)
 

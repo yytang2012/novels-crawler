@@ -1,35 +1,31 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding=utf-8
+"""
+Created on April 15 2017
 
-import scrapy
+@author: yytang
+"""
+import re
+
 from scrapy import Selector
 
 from libs.misc import get_spider_name_from_domain
-from libs.polish import *
-from novelsCrawler.items import NovelsCrawlerItem
+from libs.polish import polish_title, polish_subtitle, polish_content
+from novelsCrawler.spiders.novelSpider import NovelSpider
 
 
-class StoSpider(scrapy.Spider):
+class StoSpider(NovelSpider):
     """
     classdocs
 
     example: https://www.sto.cc/book-8976-1.html
     """
 
-    dom = 'www.sto.cc'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
-    # tmp_root_dir = os.path.expanduser(settings['TMP_DIR'])
-
-    def __init__(self, *args, **kwargs):
-        super(StoSpider, self).__init__(*args, **kwargs)
-        self.tmp_novels_dir = kwargs['tmp_novels_dir']
-        urls = kwargs['start_urls']
-        self.start_urls = [self.url_check(url) for url in urls]
-        print(self.start_urls)
-
-    # def start_requests(self):
-    #     for url in self.start_urls:
-    #         yield self.make_requests_from_url(url)
+    allowed_domains = ['www.sto.cc']
+    name = get_spider_name_from_domain(allowed_domains[0])
+    # custom_settings = {
+    #     'DOWNLOAD_DELAY': 0.3,
+    # }
 
     def url_check(self, url):
         pattern = 'http://www.sto.cc/mbook-(\d+)-\d+.html'
@@ -38,15 +34,15 @@ class StoSpider(scrapy.Spider):
             return 'http://www.sto.cc/{0}-1/'.format(m.group(1))
         return url
 
-    def parse(self, response):
+    def parse_title(self, response):
         sel = Selector(response)
         title = sel.xpath('//h1/text()').extract()[0]
         title = re.search(u'《([^》]+)》', title).group(1)
         title = polish_title(title, self.name)
-        print(title)
-        tmp_spider_root_dir = os.path.join(self.tmp_novels_dir, title)
-        if not os.path.isdir(tmp_spider_root_dir):
-            os.makedirs(tmp_spider_root_dir)
+        return title
+
+    def parse_episoders(self, response):
+        sel = Selector(response)
 
         # Get the last page number
         last_url = sel.xpath('//div[@id="webPage"]/a/@href').extract()[-1]
@@ -55,44 +51,15 @@ class StoSpider(scrapy.Spider):
         # Get the url prefix
         page_url_prefix = re.match(r'(.+)-\d+\.html', response.url).group(1)
 
-        web_pages = []
-        web_url = response.url
-        web_items = []
-        for i in range(1, max_page + 1):
-            page_item = {}
-            url = "%s-%d.html" % (page_url_prefix, i)
-            page_item['url'] = url
-            subtitle = ''
-            page_item['subtitle'] = subtitle
-            page_item['id'] = i
-            page_item['title'] = title
-            page_item['root_dir'] = tmp_spider_root_dir
-            web_items.append(page_item)
-            web_pages.append(i)
-        web_pages.sort()
-        save_index(title, web_url, tmp_spider_root_dir, web_pages)
-        pages = polish_pages(tmp_spider_root_dir, web_pages)
+        episoders = []
+        for page_id in range(1, max_page+1):
+            subtitle_name = ''
+            subtitle_url = '{prefix}-{page_id}.html'.format(prefix=page_url_prefix, page_id=page_id)
+            episoders.append((page_id, subtitle_name, subtitle_url))
+        return episoders
 
-        for page_item in web_items:
-            i = page_item['id']
-            if i in pages:
-                url = page_item['url']
-                request = scrapy.Request(url, callback=self.parse_page)
-                item = NovelsCrawlerItem()
-                item['title'] = page_item['title']
-                item['subtitle'] = page_item['subtitle']
-                item['id'] = page_item['id']
-                item['root_dir'] = page_item['root_dir']
-                request.meta['item'] = item
-                yield request
-
-    def parse_page(self, response):
-        item = response.meta['item']
+    def parse_content(self, response):
         sel = Selector(response)
         content = sel.xpath('//div[@id="BookContent"]/text()').extract()
         content = polish_content(content)
-        item['content'] = content
-        return item
-
-
-
+        return content
