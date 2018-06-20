@@ -20,9 +20,12 @@ class ExampleMobileSpider(NovelSpider):
     example: http://m.daomengren.com/wapbook-7922/
     """
 
-    dom = 'm.example.com'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
+    allowed_domains = ['m.example.com']
+    name = get_spider_name_from_domain(allowed_domains[0])
+
+    # custom_settings = {
+    #     'DOWNLOAD_DELAY': 0.3,
+    # }
 
     def parse_title(self, response):
         sel = Selector(response)

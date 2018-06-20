@@ -88,8 +88,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
-userData/configurations/dropbox-token.dat
-userData/downloads/*
+userData/configurations/config.ini
 userData/tmpNovels/*
 .idea/
-temp/
+test/*
+novelsCrawler/spiders/trash/__init__.py
+userData/tmpNovels/

@@ -28,10 +28,10 @@ class StoSpider(NovelSpider):
     # }
 
     def url_check(self, url):
-        pattern = 'http://www.sto.cc/mbook-(\d+)-\d+.html'
+        pattern = 'https://www.sto.cc/book-(\d+)-\d+.html'
         m = re.search(pattern, url)
         if m is not None:
-            return 'http://www.sto.cc/{0}-1/'.format(m.group(1))
+            return 'https://www.sto.cc/book-{0}-1.html'.format(m.group(1))
         return url
 
     def parse_title(self, response):
@@ -52,9 +52,9 @@ class StoSpider(NovelSpider):
         page_url_prefix = re.match(r'(.+)-\d+\.html', response.url).group(1)
 
         episoders = []
-        for page_id in range(1, max_page+1):
+        for page_id in range(max_page):
             subtitle_name = ''
-            subtitle_url = '{prefix}-{page_id}.html'.format(prefix=page_url_prefix, page_id=page_id)
+            subtitle_url = '{prefix}-{page_id}.html'.format(prefix=page_url_prefix, page_id=page_id+1)
             episoders.append((page_id, subtitle_name, subtitle_url))
         return episoders
 

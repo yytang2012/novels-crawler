@@ -42,15 +42,15 @@ def polish_subtitle(subtitle):
     return subtitle
 
 
-def polish_pages(tmp_spider_root_dir, pages):
-    pages = [i for i in pages if not os.path.isfile(os.path.join(tmp_spider_root_dir, str(i) + '.txt'))]
-    # pages = []
-    # for i in pagesOld:
-    #     novelPath = os.path.join(tmp_spider_root_dir, str(i) + '.txt')
-    #     if not os.path.isfile(novelPath):
-    #         pages.append(i)
-    print(pages)
-    return pages
+# def polish_pages(tmp_spider_root_dir, pages):
+#     pages = [i for i in pages if not os.path.isfile(os.path.join(tmp_spider_root_dir, str(i) + '.txt'))]
+#     # pages = []
+#     # for i in pagesOld:
+#     #     novelPath = os.path.join(tmp_spider_root_dir, str(i) + '.txt')
+#     #     if not os.path.isfile(novelPath):
+#     #         pages.append(i)
+#     print(pages)
+#     return pages
 
 
 def existing_pages(tmp_spider_root_dir):
@@ -82,21 +82,22 @@ def polish_content(content, num=0, word_convert=True):
         # 'zha': '炸',
     }
     enters = '\n\n'
-    res = []
+    res = ''
     for cc in content:
         if word_convert:
             for ori_word, new_word in replace_dict.items():
                 cc = cc.replace(ori_word, new_word)
         if cc.strip().strip('\r') == '':
             continue
-        res.append(cc.strip('\n\r') + enters)
+        # res.append(cc.strip('\n\r') + enters)
+        res += (cc.strip('\n\r') + enters)
     return res
 
 
-def save_index(title, url, tmp_spider_root_dir, chapters, firstPage=True):
+def save_index(title, url, tmp_spider_root_dir, chapters, first_page=True):
     index_file = settings['INDEX_FILE']
     index_path = os.path.join(tmp_spider_root_dir, index_file)
-    if firstPage:
+    if first_page:
         urls = [url]
         data = (title, urls, chapters)
         save_to_json(data, index_path)

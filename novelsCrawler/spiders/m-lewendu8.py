@@ -1,37 +1,42 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# coding=utf-8
+"""
+Created on April 15 2017
+
+@author: yytang
+"""
 
 from scrapy import Selector
 
 from libs.misc import get_spider_name_from_domain
-from libs.polish import polish_title, polish_subtitle, polish_content
+from libs.polish import *
 from novelsCrawler.spiders.novelSpider import NovelSpider
 
 
-class Lewen6Spider(NovelSpider):
+class Lewendu8MobileSpider(NovelSpider):
     """
     classdocs
 
-    example: http://www.lewen6.com/1/1929/
+    example: https://m.lewendu8.com/mbook/3283
     """
 
-    dom = 'www.lewen6.com'
-    name = get_spider_name_from_domain(dom)
-    allowed_domains = [dom]
-    custom_settings = {
-        'DOWNLOAD_DELAY': 0.3,
-    }
+    allowed_domains = ['m.lewendu8.com']
+    name = get_spider_name_from_domain(allowed_domains[0])
 
+    # custom_settings = {
+    #     'DOWNLOAD_DELAY': 0.3,
+    # }
 
     def parse_title(self, response):
         sel = Selector(response)
-        title = sel.xpath('//h1/text()').extract()[0]
+        title = sel.xpath('//h3/text()').extract()[0]
         title = polish_title(title, self.name)
         return title
 
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//div[@class="panel-body"]/ul[@class="list-group list-charts"]/li/a')
+        subtitle_selectors = sel.xpath('//ul[@class="chapter"]/li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
@@ -42,6 +47,16 @@ class Lewen6Spider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@class="panel-body content-body content-ext"]/text()').extract()
+        content = sel.xpath('//div[@id="nr1"]/text()').extract()
         content = polish_content(content)
         return content
+
+    def get_next_page_url(self, response):
+        sel = Selector(response)
+        next_page_url_list = \
+            sel.xpath('//div[@class="page"]/a[contains(text(), "下一页") or contains(text(), "下一頁")]/@href').extract()
+        if len(next_page_url_list) != 0:
+            next_page_url = next_page_url_list[0]
+            return next_page_url
+        else:
+            return None

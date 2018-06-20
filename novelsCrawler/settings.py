@@ -25,14 +25,15 @@ ROBOTSTXT_OBEY = False
 # ROOT_DIR = '~/novels'
 ROOT_DIR = os.path.join(os.getcwd(), 'userData')
 URL_FILE = os.path.join(ROOT_DIR, 'urlfile')
-TMP_DIR = os.path.join(ROOT_DIR, 'tmpNovels')
-LOG_PATH = os.path.join(ROOT_DIR, 'Download-history.log')
-LOG = 'Download-history.log'
+# TMP_DIR = os.path.join(ROOT_DIR, 'tmpNovels')
+# LOG_PATH = os.path.join(ROOT_DIR, 'Download-history.log')
+# LOG = 'Download-history.log'
 CONFIGURATION = os.path.join(ROOT_DIR, 'configurations')
 DOWNLOADS = os.path.join(ROOT_DIR, 'downloads')
-INDEX_FILE = 'index'
-DROPBOX_TOKEN = os.path.join(CONFIGURATION, 'dropbox-token.dat')
+# INDEX_FILE = 'index'
+DROPBOX_TOKEN = os.path.join(CONFIGURATION, 'config.ini')
 PROXY_FILE = os.path.join(ROOT_DIR, 'proxy-file.txt')
+MONGODB_URI = 'mongodb://localhost:27017'
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32

@@ -1,24 +1,26 @@
 # -*- coding: utf-8 -*-
 
+from pymongo import MongoClient
 # Define your item pipelines here
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-import os
+from scrapy.conf import settings
 
 
 class NovelsCrawlerPipeline(object):
+    def __init__(self):
+        MONGODB_URI = settings['MONGODB_URI']
+        client = MongoClient(MONGODB_URI)
+        self.db = client["Novels"]
+
     def process_item(self, item, spider):
         page_id = item['id']
         subtitle = item['subtitle']
         content = item['content']
-        root_dir = item['root_dir']
-        novel_path = os.path.join(root_dir, str(page_id) + '.txt')
-        if not os.path.isfile(novel_path):
-            with open(novel_path, 'w', encoding='utf-8') as fd:
-                if subtitle != '':
-                    print(subtitle)
-                    fd.write(subtitle)
-                for cc in content:
-                    fd.write(cc)
+        title = item['title']
+        novel = self.db[title]
+
+        novel.insert_one({'title': title, 'page_id': page_id, 'content': content, 'subtitle': subtitle})
+
 

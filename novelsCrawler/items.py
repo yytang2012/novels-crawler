@@ -13,4 +13,3 @@ class NovelsCrawlerItem(scrapy.Item):
     subtitle = scrapy.Field()
     content = scrapy.Field()
     id = scrapy.Field()
-    root_dir = scrapy.Field()
