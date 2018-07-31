@@ -10,10 +10,10 @@ class Novel101Spider(NovelSpider):
     """
     classdocs
 
-    example: https://novel101.com/novels/06576839-16e5-4782-a645-8e9310e56f56
+    example: https://www.101novel.com/ck101/77640/
     """
 
-    allowed_domains = ['novel101.com']
+    allowed_domains = ['www.101novel.com']
     name = get_spider_name_from_domain(allowed_domains[0])
 
     def parse_title(self, response):
@@ -25,17 +25,17 @@ class Novel101Spider(NovelSpider):
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//div[@class="list-group"]/a[@class="list-group-item"]')
+        subtitle_selectors = sel.xpath('//tr/td/div[@class="dccss"]/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
-            subtitle_name = subtitle_selector.xpath('h4/text()').extract()[0]
+            subtitle_name = subtitle_selector.xpath('text()').extract()[0]
             subtitle_name = polish_subtitle(subtitle_name)
             episoders.append((page_id, subtitle_name, subtitle_url))
         return episoders
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@class="body"]/p/text()').extract()
+        content = sel.xpath('//div[@name="content"]/p/text()').extract()
         content = polish_content(content)
         return content

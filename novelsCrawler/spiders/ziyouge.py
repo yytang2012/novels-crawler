@@ -13,14 +13,14 @@ from libs.polish import polish_title, polish_subtitle, polish_content
 from novelsCrawler.spiders.novelSpider import NovelSpider
 
 
-class LewenxiaoshuoSpider(NovelSpider):
+class ZiyougeSpider(NovelSpider):
     """
     classdocs
 
-    example: https://www.lewenxiaoshuo.com/books/momenyaonv/
+    example: http://www.ziyouge.com/book/12778
     """
 
-    allowed_domains = ['www.lewenxiaoshuo.com']
+    allowed_domains = ['www.ziyouge.com']
     name = get_spider_name_from_domain(allowed_domains[0])
     # custom_settings = {
     #     'DOWNLOAD_DELAY': 0.3,
@@ -28,14 +28,15 @@ class LewenxiaoshuoSpider(NovelSpider):
 
     def parse_title(self, response):
         sel = Selector(response)
-        title = sel.xpath('//h1/text()').extract()[0]
+        title = sel.xpath('//h2/text()').extract()[0]
         title = polish_title(title, self.name)
         return title
 
     def parse_episoders(self, response):
         sel = Selector(response)
         episoders = []
-        subtitle_selectors = sel.xpath('//div[@id="list"]/dl/dd/a')
+        tmp = sel.xpath('//ul[@class="am-list am-list-static am-g am-book-list"]')[-1]
+        subtitle_selectors = tmp.xpath('li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
@@ -46,6 +47,6 @@ class LewenxiaoshuoSpider(NovelSpider):
 
     def parse_content(self, response):
         sel = Selector(response)
-        content = sel.xpath('//div[@id="content"]/text()').extract()
+        content = sel.xpath('//article[@id="am-read-centent"]/text()').extract()
         content = polish_content(content)
         return content
