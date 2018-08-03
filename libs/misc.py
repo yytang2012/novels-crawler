@@ -72,6 +72,9 @@ def page_convert_from_zero(page, n):
     tmp = page + 1
     return page_convert(tmp, n) - 1
 
+def decode_gbk(data):
+    return data.encode('iso-8859-1').decode('gbk')
+
 
 if __name__ == '__main__':
     page = 5

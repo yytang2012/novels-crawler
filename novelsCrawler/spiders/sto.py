@@ -18,7 +18,9 @@ class StoSpider(NovelSpider):
     """
     classdocs
 
-    example: https://www.sto.cc/book-8976-1.html
+    example:
+    https://www.sto.cc/book-8976-1.html
+    https://www.sto.cc/mbook-87222-1.html
     """
 
     allowed_domains = ['www.sto.cc']
@@ -28,10 +30,11 @@ class StoSpider(NovelSpider):
     # }
 
     def url_check(self, url):
-        pattern = 'https://www.sto.cc/book-(\d+)-\d+.html'
+        pattern = 'https://www.sto.cc/m?book-(\d+)-\d+.html'
         m = re.search(pattern, url)
         if m is not None:
             return 'https://www.sto.cc/book-{0}-1.html'.format(m.group(1))
+
         return url
 
     def parse_title(self, response):
