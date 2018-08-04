@@ -89,6 +89,7 @@ ENV/
 .ropeproject
 
 userData/configurations/config.ini
+userData/username_password.py
 userData/tmpNovels/*
 .idea/
 test/*
