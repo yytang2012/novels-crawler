@@ -21,6 +21,9 @@ class NovelsCrawlerPipeline(object):
         title = item['title']
         novel = self.db[title]
 
-        novel.insert_one({'title': title, 'page_id': page_id, 'content': content, 'subtitle': subtitle})
+        # novel.insert_one({'title': title, 'page_id': page_id, 'content': content, 'subtitle': subtitle})
+        novel.find_one_and_update({'page_id': page_id},
+                                  {"$set": {'title': title, 'page_id': page_id, 'content': content, 'subtitle': subtitle}},
+                                  upsert=True)
 
 

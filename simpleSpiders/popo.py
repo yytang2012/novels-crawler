@@ -1,119 +1,30 @@
-import os
-import random
-
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from parsel import Selector
-import time
-from urllib.parse import urljoin
-
-from libs.database_api import MongoDatabase
-from libs.polish import polish_content, polish_title, polish_subtitle
-from userData.username_password import USERNAME_PASSWORD
+import requests
 
 
-class PopoSpider:
-    def __init__(self):
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        # chrome_options.add_argument("--window-size=1920x1080")
-        self.mongoDB = MongoDatabase()
-        self.driver = webdriver.Chrome(chrome_options=chrome_options)
+cookies_text = """
+Cookie: authtoken6=1; bgcolor=bg-default; word=select-m; __gads=ID=7653011dc03125da:T=1525384324:S=ALNI_MYaBrrnT0nZCv4cMAQHb61oY1xdCA; __utmz=204782609.1529880809.78.3.utmcsr=google|utmccn=(organic)|utmcmd=organic|utmctr=(not%20provided); book18limit_651533=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_555894=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_641150=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_631319=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_574036=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_572991=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_617159=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_556130=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_495519=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_530210=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_644802=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_640554=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_630086=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_607871=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_645528=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; book18limit_522949=1362a390f19919863d5ed7b50bcbf274e05e8019s%3A1%3A%221%22%3B; __utmc=204782609; authToken=03m9jd049o2qsnbf3hvr6mnlt0; PORF_TOKEN=fda6ee9b9ba3582e55f8733389abed33903c7fd5s%3A40%3A%228eb49ec01c502cd6dbfffc40ae5499c0845c3717%22%3B; url=https%3A%2F%2Fwww.popo.tw%2Fbooks%2F530210; authtoken1=Z3Vhbmd5dTAwNw%3D%3D; authtoken2=OTM2NzZhYTRlOTYxYmQ2YjBhMGRiZDI0ZWFmNzRkOGU%3D; authtoken3=1393556966; authtoken4=3103586858; authtoken5=1533420218; __utma=204782609.1180877328.1527183640.1533411626.1533420276.137; __utmb=204782609.7.10.1533420276
+"""
 
-    def start_download(self, urls):
-        username, password = random.choice(USERNAME_PASSWORD)
-        self.login_to_popo(username, password)
-        for url in self.mongoDB.preprocess_urls(urls):
-            self.download_url(url)
-        self.driver.quit()
-        self.save_to_file()
-
-    def download_url(self, url):
-        chrome_driver = self.driver
-        _mongoDB = self.mongoDB
-        # 18 year old warning
-        try:
-            chrome_driver.get(url)
-            time.sleep(0.5)
-            chrome_driver.find_element_by_class_name('R-yes').click()
-        except:
-            pass
-
-        sel = Selector(text=chrome_driver.page_source)
-        title = sel.xpath('//h3[@class="title"]/text()').extract()[0]
-        title = polish_title(title, 'popo')
-
-        # get the content of target novel
-        chapters = []
-        time.sleep(0.5)
-        chrome_driver.find_element_by_xpath('//*/a[contains(text(), "章回列表")]').click()
-        while True:
-            time.sleep(0.5)
-            sel = Selector(text=chrome_driver.page_source)
-            chapters += sel.xpath('//a[@class="cname"]')
-            try:
-                chrome_driver.find_element_by_xpath('//a/img[@src="/images/icon-page-last.png"]/..').click()
-            except:
-                break
-
-        novel_info = []
-        all_pages = []
-        for idx, chapter in enumerate(chapters):
-            page_id = idx + 1
-            all_pages.append(page_id)
-            subtitle_url = chapter.xpath('@href').extract()[0]
-            subtitle_url = urljoin(chrome_driver.current_url, subtitle_url)
-            subtitle = chapter.xpath('text()').extract()[0]
-            if not _mongoDB.page_exist(title, page_id):
-                print(page_id, subtitle_url, subtitle)
-                novel_info.append((page_id, subtitle_url, subtitle))
-        _mongoDB.update_index(title, url, all_pages)
-
-        for page_id, subtitle_url, subtitle in novel_info:
-            time.sleep(1.0)
-            print(page_id, subtitle_url, subtitle)
-            chrome_driver.get(subtitle_url)
-            chrome_driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sel = Selector(text=chrome_driver.page_source)
-            contents = sel.xpath('//div[@id="readmask"]/div/p/text()').extract()
-            cc = polish_content(contents)
-            subtitle = polish_subtitle(subtitle)
-            print(cc)
-            _mongoDB.page_insert(title, page_id, cc, subtitle)
-
-    def login_to_popo(self, username, password):
-        print("start to login")
-        login_url = 'https://members.popo.tw/apps/login.php'
-        _driver = self.driver
-        _driver.get(login_url)
-        _driver.find_element_by_xpath('//input[@name="account"]').send_keys(username)
-        _driver.find_element_by_xpath('//input[@type="password"]').send_keys(password)
-        _driver.find_element_by_xpath('//input[@type="submit"]').click()
-        print("Logged in as {username}".format(username=username))
-        time.sleep(1)
-
-    def save_to_file(self):
-        download_path = os.path.join(os.getcwd(), '..')
-        download_path = os.path.join(download_path, 'userData')
-        download_path = os.path.join(download_path, 'downloads')
-        done, incomplete = self.mongoDB.combine_pages_to_novels(download_path)
-        print('Done:')
-        for idx, item in enumerate(done):
-            print('{0}: url:{1}, title: {2}'.format(idx, item[0], item[1]))
-        print('\nIncomplete:')
-        for idx, item in enumerate(incomplete):
-            print('{0}: url:{1}, title: {2}'.format(idx, item[0], item[1]))
+def get_cookies(cookies_text):
+    cookies_text = cookies_text.replace('Cookie:', '')
+    attrs = [attr.strip().split('=') for attr in cookies_text.split(';')]
+    cookies = {item[0]: item[1] for item in attrs}
+    return cookies
 
 
-if __name__ == '__main__':
-    urls = [
-        # 'https://www.popo.tw/books/638516',
-        'https://www.popo.tw/books/632948',
-    ]
-    repeat = 5
-    while repeat > 0:
-        spider = PopoSpider()
-        spider.start_download(urls)
-        repeat -= 1
-        time.sleep(5)
 
+url_content = 'https://www.popo.tw/books/654599/articles'
+url_page = 'https://www.popo.tw/books/654599/articles/7493810'
+referer = 'https://www.popo.tw/books/654599/articles'
+headers = {
+    'referer': referer,
+    'Connection': 'keep-alive',
+    'Host': 'www.popo.tw',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36',
+    'Upgrade-Insecure-Requests': '1',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'
+}
+cookies = get_cookies(cookies_text)
+web_page = requests.get(url_page, cookies=cookies, headers=headers, timeout=120)
+# web_page = requests.get(url_page)
+print(web_page.text)

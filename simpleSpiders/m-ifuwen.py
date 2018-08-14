@@ -12,7 +12,7 @@ def parse_content(url):
     sel = Selector(text=html)
     title = sel.xpath('//title/text()').extract()[0]
     title = title.split('_')[0]
-    title = polish_title(title, 'yushuwu')
+    title = polish_title(title, 'm-ifuwen')
     print(title)
 
     file_path = os.path.join(os.getcwd(), '..')
@@ -58,6 +58,6 @@ def save_to_file(file_path, article):
 
 
 if __name__ == '__main__':
-    url = 'https://m.yushuwu.com/novel/31960.html'
+    url = 'https://m.ifuwen.com/novel/31187.html'
     parse_content(url)
 

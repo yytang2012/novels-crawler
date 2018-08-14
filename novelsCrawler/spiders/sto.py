@@ -30,7 +30,7 @@ class StoSpider(NovelSpider):
     # }
 
     def url_check(self, url):
-        pattern = 'https://www.sto.cc/m?book-(\d+)-\d+.html'
+        pattern = 'https?://www.sto.cc/m?book-(\d+)-\d+.html'
         m = re.search(pattern, url)
         if m is not None:
             return 'https://www.sto.cc/book-{0}-1.html'.format(m.group(1))

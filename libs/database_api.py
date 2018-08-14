@@ -10,9 +10,10 @@ class MongoDatabase:
         client = MongoClient(MONGODB_URI)
         self.db = client["Novels"]
 
-    def preprocess_urls(self, urls):
+    def preprocess_urls(self, urls, flag=False):
         novel_info = self.db["novel_info"]
-        return urls
+        if flag:
+            return urls
         new_urls = []
         for url in urls:
             novel = novel_info.find_one({'url': url})
