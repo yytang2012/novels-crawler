@@ -14,7 +14,6 @@ class PopoSpider:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         # chrome_options.add_argument("--window-size=1920x1080")
-        # self.mongoDB = MongoDatabase()
         self.driver = webdriver.Chrome(chrome_options=chrome_options)
 
     def start_download(self, urls):
@@ -23,11 +22,9 @@ class PopoSpider:
         for url in urls:
             self.download_url(url)
         self.driver.quit()
-        # self.save_to_file()
 
     def download_url(self, url):
         chrome_driver = self.driver
-        # _mongoDB = self.mongoDB
         # 18 year old warning
         try:
             chrome_driver.get(url)
@@ -61,10 +58,7 @@ class PopoSpider:
             subtitle_url = chapter.xpath('@href').extract()[0]
             subtitle_url = urljoin(chrome_driver.current_url, subtitle_url)
             subtitle = chapter.xpath('text()').extract()[0]
-        #     if not _mongoDB.page_exist(title, page_id):
-        #         print(page_id, subtitle_url, subtitle)
             novel_info.append((page_id, subtitle_url, subtitle))
-        # _mongoDB.update_index(title, url, all_pages)
 
         for page_id, subtitle_url, subtitle in novel_info:
             time.sleep(0.3)
@@ -74,10 +68,6 @@ class PopoSpider:
             sel = Selector(text=chrome_driver.page_source)
             contents = sel.xpath('//div[@id="readmask"]/div/p/text()').extract()
             print(contents)
-            # cc = polish_content(contents)
-            # subtitle = polish_subtitle(subtitle)
-            # print(cc)
-            # _mongoDB.page_insert(title, page_id, cc, subtitle)
 
     def login_to_popo(self, username, password):
         print("start to login")
@@ -90,28 +80,22 @@ class PopoSpider:
         print("Logged in as {username}".format(username=username))
         time.sleep(1)
 
-    # def save_to_file(self):
-    #     download_path = os.path.join(os.getcwd(), '..')
-    #     download_path = os.path.join(download_path, 'userData')
-    #     download_path = os.path.join(download_path, 'downloads')
-    #     done, incomplete = self.mongoDB.combine_pages_to_novels(download_path)
-    #     print('Done:')
-    #     for idx, item in enumerate(done):
-    #         print('{0}: url:{1}, title: {2}'.format(idx, item[0], item[1]))
-    #     print('\nIncomplete:')
-    #     for idx, item in enumerate(incomplete):
-    #         print('{0}: url:{1}, title: {2}'.format(idx, item[0], item[1]))
-
 
 if __name__ == '__main__':
     urls = [
         # 'https://www.popo.tw/books/638516', # 爱欲绮梦【NP】
-        'https://www.popo.tw/books/632948',
+        # 'https://www.popo.tw/books/632948', # 女巫安娜
+        # 'https://www.popo.tw/books/616424', # 鏡之國
+        'https://www.popo.tw/books/653169', # 如果你知我心
     ]
-    repeat = 30
+    repeat = 100
     while repeat > 0:
-        spider = PopoSpider()
-        spider.start_download(urls)
-        repeat -= 1
-        time.sleep(5)
+        try:
+            spider = PopoSpider()
+            spider.start_download(urls)
+            repeat -= 1
+        except Exception as e:
+            print("Something went wrong")
+        finally:
+            time.sleep(5)
 

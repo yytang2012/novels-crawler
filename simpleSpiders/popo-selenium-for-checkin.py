@@ -1,10 +1,7 @@
-import random
+import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from parsel import Selector
-import time
-from urllib.parse import urljoin
 
 from userData.username_password import USERNAME_PASSWORD
 
@@ -23,8 +20,6 @@ class PopoSpider:
         chrome_driver.find_element_by_xpath('//a[contains(text(), "打卡")]').click()
         chrome_driver.quit()
 
-
-
     def login_to_popo(self, username, password):
         print("start to login")
         login_url = 'https://members.popo.tw/apps/login.php'
@@ -37,15 +32,20 @@ class PopoSpider:
         time.sleep(1)
 
 
-
 if __name__ == '__main__':
     urls = [
         # 'https://www.popo.tw/books/638516', # 爱欲绮梦【NP】
         'https://www.popo.tw/books/632948',
     ]
-    for idx, (username, password) in enumerate(USERNAME_PASSWORD):
-        popo_spider = PopoSpider()
-        popo_spider.start_checkin(username, password)
-        print("{0}: Done check in for {1}\n".format(idx+1, username))
-
-
+    username_passwords = USERNAME_PASSWORD
+    while username_passwords:
+        tmp = []
+        for idx, (username, password) in enumerate(username_passwords):
+            try:
+                popo_spider = PopoSpider()
+                popo_spider.start_checkin(username, password)
+                print("{0}: Done check in for {1}\n".format(idx + 1, username))
+            except Exception as e:
+                tmp.append((username, password))
+                print("{0}: Error happened when checking in for {1}\n".format(idx + 1, username))
+        username_passwords = tmp

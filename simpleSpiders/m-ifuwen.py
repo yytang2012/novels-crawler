@@ -58,6 +58,6 @@ def save_to_file(file_path, article):
 
 
 if __name__ == '__main__':
-    url = 'https://m.ifuwen.com/novel/31187.html'
+    url = 'https://m.ifuwen.com/novel/30264.html'
     parse_content(url)
 

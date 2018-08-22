@@ -7,14 +7,14 @@ from libs.polish import *
 from novelsCrawler.spiders.simpleSpider import SimpleSpider
 
 
-class MyushuwuSpider(SimpleSpider):
+class MifuwenSpider(SimpleSpider):
     """
     classdocs
 
-    example: https://m.yushuwu.com/novel/31960.html
+    example: https://m.ifuwen.com/novel/30264.html
     """
 
-    dom = 'm.yushuwu.com'
+    dom = 'm.ifuwen.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 

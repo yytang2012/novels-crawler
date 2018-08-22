@@ -4,14 +4,12 @@ import abc
 
 import pymongo
 import scrapy
-from scrapy import Selector
+from pymongo import MongoClient
+from scrapy.conf import settings
 
 from libs.misc import get_spider_name_from_domain
 from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
-from pymongo import MongoClient
-
-from scrapy.conf import settings
 
 
 class SimpleSpider(scrapy.Spider):
@@ -21,27 +19,24 @@ class SimpleSpider(scrapy.Spider):
     example: https://m.yushuwu.com/novel/31960.html
     """
 
-    dom = 'm.yushuwu.com'
+    dom = 'm.simple.com'
     name = get_spider_name_from_domain(dom)
     allowed_domains = [dom]
 
-    # @abc.abstractmethod
-    # def parse_title(self, response):
-    #     return ''
+    @abc.abstractmethod
     def parse_title(self, response):
-        sel = Selector(response)
-        title = sel.xpath('//title/text()').extract()[0]
-        title = title.split('_')[0]
-        title = polish_title(title, 'yushuwu')
-        print(title)
-        return title
+        return ''
 
     @abc.abstractmethod
-    def parse_episoders(self, response):
+    def parse_subtitle_contents(self, response):
         return []
 
     @abc.abstractmethod
-    def parse_content(self, response):
+    def get_next_page_url(self, response):
+        return []
+
+    @abc.abstractmethod
+    def get_pages_url(self, response):
         return []
 
     def __init__(self, *args, **kwargs):
@@ -78,33 +73,6 @@ class SimpleSpider(scrapy.Spider):
 
         return new_urls
 
-
-    # def start_requests(self):
-    #     for url in self.start_urls:
-    #         yield self.make_requests_from_url(url)
-
-    def get_next_page_url(self, response):
-        sel = Selector(response)
-        tmp = sel.xpath('//div[@class="nr_page"]/table/tr')
-        next_page_url = tmp.xpath('td[@class="next"]/a/@href').extract()[0]
-        mulu = tmp.xpath('td[@class="mulu"]/a/@href').extract()[0]
-        next_page_url = None if next_page_url == mulu else next_page_url
-        return next_page_url
-
-    def get_pages_url(self, response):
-        sel = Selector(response)
-        pages_info_sel = sel.xpath('//div[@class="lb_mulu chapterList"]/ul/li/a')
-        last_page_id = int(pages_info_sel[-1].xpath('text()').extract()[0])
-        pages_url = [None for i in range(last_page_id)]
-        for page_info_sel in pages_info_sel:
-            try:
-                page_id = int(page_info_sel.xpath('text()').extract()[0])
-                subtitle_url = page_info_sel.xpath('@href').extract()[0]
-                pages_url[page_id-1] = subtitle_url
-            except Exception as e:
-                pass
-        return pages_url
-
     def parse(self, response):
         title = self.parse_title(response=response)
 
@@ -120,30 +88,27 @@ class SimpleSpider(scrapy.Spider):
             page_id = idx
             page_info = self.novel.find_one({'page_id': page_id})
             if not page_info:
-                self.novel.insert_one({'title': title, 'page_id': page_id, 'content': None, 'subtitle_url': subtitle_url})
+                self.novel.insert_one(
+                    {'title': title, 'page_id': page_id, 'content': None, 'subtitle_url': subtitle_url})
 
         for page in self.novel.find().sort('page_id', pymongo.ASCENDING):
             if not page['content'] and page['subtitle_url']:
                 item = NovelsCrawlerItem()
                 item['id'] = page['page_id']
                 item['title'] = title
-                # item['root_dir'] = tmp_spider_root_dir
+                print(page['subtitle_url'])
                 request = scrapy.Request(page['subtitle_url'], callback=self.parse_page)
                 request.meta['item'] = item
                 yield request
 
     def parse_page(self, response):
         item = response.meta['item']
-        item['content'] = self.parse_content(response=response)
         page_id = item['id']
         title = item['title']
 
-        sel = Selector(response)
-        subtitle = sel.xpath('//h1/text()').extract()[0]
-        item['subtitle'] = polish_subtitle(subtitle)
-
-        contents = sel.xpath('//div[@id="nr1"]/p/text()').extract()
-        item['content'] = polish_content(contents)
+        subtitle, contents = self.parse_subtitle_contents(response)
+        item['subtitle'] = subtitle
+        item['content'] = contents
 
         next_page_url = self.get_next_page_url(response)
         if next_page_url:
@@ -157,7 +122,6 @@ class SimpleSpider(scrapy.Spider):
                 new_item = NovelsCrawlerItem()
                 new_item['id'] = next_page['page_id']
                 new_item['title'] = title
-                # item['root_dir'] = tmp_spider_root_dir
                 request = scrapy.Request(next_page['subtitle_url'], callback=self.parse_page)
                 request.meta['item'] = new_item
                 yield request
