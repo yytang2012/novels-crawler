@@ -27,7 +27,7 @@ class NovelSpider(scrapy.Spider):
         return ''
 
     @abc.abstractmethod
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         return []
 
     @abc.abstractmethod
@@ -104,10 +104,10 @@ class NovelSpider(scrapy.Spider):
         # if not os.path.isdir(tmp_spider_root_dir):
         #     os.makedirs(tmp_spider_root_dir)
 
-        episoders = self.parse_episoders(response=response)
+        episodes = self.parse_episodes(response=response)
         pages = self.db[title]
         # existing_pages_list = existing_pages(tmp_spider_root_dir)
-        for page_id, subtitle_name, subtitle_url in episoders:
+        for page_id, subtitle_name, subtitle_url in episodes:
             page_id += start_page
             all_pages.append(page_id)
             if pages.find_one({'page_id': page_id}):

@@ -1,9 +1,21 @@
+import contextlib
 import time
-
+import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from userData.username_password import USERNAME_PASSWORD
+from libs.email_api import EmailAPIs
+
+
+@contextlib.contextmanager
+def stopwatch(message):
+    """Context manager to print how long a block of code took."""
+    t0 = time.time()
+    try:
+        yield
+    finally:
+        t1 = time.time()
+        print('Total elapsed time for %s: %.3f' % (message, t1 - t0))
 
 
 class PopoSpider:
@@ -32,20 +44,60 @@ class PopoSpider:
         time.sleep(1)
 
 
+def popo_checkin():
+    username_passwords = []
+    with open('username_password.txt', encoding="utf8") as f:
+        for line in f.readlines():
+            segments = line.split(',')
+            if len(segments) < 2:
+                continue
+            username = segments[0].strip()
+            password = segments[1].strip()
+            username_passwords.append((username, password))
+    # username_passwords = USERNAME_PASSWORD
+    print(username_passwords)
+    message_log = ''
+    with stopwatch('popo check in'):
+        while username_passwords:
+            tmp = []
+            for idx, (username, password) in enumerate(username_passwords):
+                try:
+                    popo_spider = PopoSpider()
+                    popo_spider.start_checkin(username, password)
+                    tmp_msg = "{0}: Done check in for {1}\n".format(idx + 1, username)
+                    message_log += tmp_msg
+                    print(tmp_msg)
+                except Exception as e:
+                    tmp.append((username, password))
+                    tmp_msg = "{0}: Error happened when checking in for {1}\n".format(idx + 1, username)
+                    message_log += tmp_msg
+                    print(tmp_msg)
+            username_passwords = tmp
+    notification(message_log)
+
+
+def notification(body):
+    MY_EMAIL = 'xxxxx@gmail.com'
+    PASSWORD = 'password'
+    try:
+        email = EmailAPIs(MY_EMAIL, PASSWORD)
+        subject = datetime.datetime.now().strftime('%Y-%m-%d %H:%M ') + 'Check-in is completed'
+        destination_address = 'lingyingchao94zoe@gmail.com'
+        email.send_message_to_one(destination_address, subject, body)
+        print('message has been sent successfully')
+    except Exception as e:
+        print("Error happened when trying to send the message")
+    print('We have completed check in for all accounts')
+
+
 if __name__ == '__main__':
-    urls = [
-        # 'https://www.popo.tw/books/638516', # 爱欲绮梦【NP】
-        'https://www.popo.tw/books/632948',
-    ]
-    username_passwords = USERNAME_PASSWORD
-    while username_passwords:
-        tmp = []
-        for idx, (username, password) in enumerate(username_passwords):
-            try:
-                popo_spider = PopoSpider()
-                popo_spider.start_checkin(username, password)
-                print("{0}: Done check in for {1}\n".format(idx + 1, username))
-            except Exception as e:
-                tmp.append((username, password))
-                print("{0}: Error happened when checking in for {1}\n".format(idx + 1, username))
-        username_passwords = tmp
+    flag = True
+    while True:
+        current_time = datetime.datetime.now().strftime('%H')
+        current_time = int(current_time)
+        if current_time <= 12 and not flag:
+            flag = True
+        if current_time > 12 and flag:
+            popo_checkin()
+            flag = False
+        time.sleep(60 * 10)

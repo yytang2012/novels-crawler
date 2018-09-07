@@ -32,9 +32,9 @@ class ZiyougeSpider(NovelSpider):
         title = polish_title(title, self.name)
         return title
 
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         sel = Selector(response)
-        episoders = []
+        episodes = []
         tmp = sel.xpath('//ul[@class="am-list am-list-static am-g am-book-list"]')[-1]
         subtitle_selectors = tmp.xpath('li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
@@ -42,8 +42,8 @@ class ZiyougeSpider(NovelSpider):
             subtitle_url = response.urljoin(subtitle_url.strip())
             subtitle_name = subtitle_selector.xpath('text()').extract()[0]
             subtitle_name = polish_subtitle(subtitle_name)
-            episoders.append((page_id, subtitle_name, subtitle_url))
-        return episoders
+            episodes.append((page_id, subtitle_name, subtitle_url))
+        return episodes
 
     def parse_content(self, response):
         sel = Selector(response)

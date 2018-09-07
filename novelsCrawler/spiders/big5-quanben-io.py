@@ -32,7 +32,7 @@ class Big5QuanbenIOSpider(NovelSpider):
         title = polish_title(title, self.name)
         return title
 
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         sel = Selector(response)
         episoders = []
         subtitle_selectors = sel.xpath('//ul[@class="list3"]/li/a')

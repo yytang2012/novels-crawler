@@ -48,7 +48,7 @@ class SimpleSpider(scrapy.Spider):
         client = MongoClient(settings['MONGODB_URI'])
         self.db = client["Novels"]
         self.index = self.db['index']
-        self.novel = None
+        self.novel_dict = {}
         self.start_urls = self.preprocess_urls(urls)
         print(self.start_urls)
 
@@ -83,15 +83,16 @@ class SimpleSpider(scrapy.Spider):
         novel_index = {'title': title, 'url': response.url, 'pages': all_pages}
         index.insert_one(novel_index)
 
-        self.novel = self.db[title]
+        self.novel_dict[title] = self.db[title]
+        novel = self.novel_dict[title]
         for idx, subtitle_url in enumerate(pages_url):
             page_id = idx
-            page_info = self.novel.find_one({'page_id': page_id})
+            page_info = novel.find_one({'page_id': page_id})
             if not page_info:
-                self.novel.insert_one(
+                novel.insert_one(
                     {'title': title, 'page_id': page_id, 'content': None, 'subtitle_url': subtitle_url})
 
-        for page in self.novel.find().sort('page_id', pymongo.ASCENDING):
+        for page in novel.find().sort('page_id', pymongo.ASCENDING):
             if not page['content'] and page['subtitle_url']:
                 item = NovelsCrawlerItem()
                 item['id'] = page['page_id']
@@ -105,6 +106,7 @@ class SimpleSpider(scrapy.Spider):
         item = response.meta['item']
         page_id = item['id']
         title = item['title']
+        novel = self.novel_dict[title]
 
         subtitle, contents = self.parse_subtitle_contents(response)
         item['subtitle'] = subtitle
@@ -113,12 +115,12 @@ class SimpleSpider(scrapy.Spider):
         next_page_url = self.get_next_page_url(response)
         if next_page_url:
             next_page_id = page_id + 1
-            next_page = self.novel.find_one({'page_id': next_page_id})
+            next_page = novel.find_one({'page_id': next_page_id})
             if next_page and next_page['subtitle_url']:
                 pass
             else:
                 next_page['subtitle_url'] = next_page_url
-                self.novel.find_one_and_update({'page_id': next_page_id}, {"$set": next_page}, upsert=True)
+                novel.find_one_and_update({'page_id': next_page_id}, {"$set": next_page}, upsert=True)
                 new_item = NovelsCrawlerItem()
                 new_item['id'] = next_page['page_id']
                 new_item['title'] = title

@@ -20,8 +20,9 @@ class PopoSpider:
         self.mongoDB = MongoDatabase()
         self.driver = webdriver.Chrome(chrome_options=chrome_options)
 
-    def start_download(self, urls):
-        username, password = random.choice(USERNAME_PASSWORD)
+    def start_download(self, urls, username=None, password=None):
+        if not username or not password:
+            username, password = random.choice(USERNAME_PASSWORD)
         self.login_to_popo(username, password)
         for url in self.mongoDB.preprocess_urls(urls, True):
             self.download_url(url)
@@ -50,7 +51,7 @@ class PopoSpider:
         while True:
             time.sleep(0.5)
             sel = Selector(text=chrome_driver.page_source)
-            chapters += sel.xpath('//a[@class="cname"]')
+            chapters += sel.xpath('//div[@class="clist"]/div/a')
             try:
                 chrome_driver.find_element_by_xpath('//a/img[@src="/images/icon-page-last.png"]/..').click()
             except:
@@ -107,13 +108,11 @@ class PopoSpider:
 
 if __name__ == '__main__':
     urls = [
-        'https://www.popo.tw/books/638516', # 爱欲绮梦【NP】
+        'https://www.popo.tw/books/638516',  # 爱欲绮梦【NP】
         # 'https://www.popo.tw/books/632948',
+        # 'https://www.popo.tw/books/650718'  # 用爱发电（短篇集）
     ]
-    repeat = 5
-    while repeat > 0:
-        spider = PopoSpider()
-        spider.start_download(urls)
-        repeat -= 1
-        time.sleep(5)
 
+    username, password = 'meidingdang11', 'popo2018'
+    spider = PopoSpider()
+    spider.start_download(urls, username, password)

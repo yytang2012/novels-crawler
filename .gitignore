@@ -95,3 +95,5 @@ userData/tmpNovels/*
 test/*
 novelsCrawler/spiders/trash/__init__.py
 userData/tmpNovels/
+
+simpleSpiders/username_password.txt

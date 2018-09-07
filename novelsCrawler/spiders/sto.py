@@ -44,7 +44,7 @@ class StoSpider(NovelSpider):
         title = polish_title(title, self.name)
         return title
 
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         sel = Selector(response)
 
         # Get the last page number
@@ -54,12 +54,12 @@ class StoSpider(NovelSpider):
         # Get the url prefix
         page_url_prefix = re.match(r'(.+)-\d+\.html', response.url).group(1)
 
-        episoders = []
+        episodes = []
         for page_id in range(max_page):
             subtitle_name = ''
             subtitle_url = '{prefix}-{page_id}.html'.format(prefix=page_url_prefix, page_id=page_id+1)
-            episoders.append((page_id, subtitle_name, subtitle_url))
-        return episoders
+            episodes.append((page_id, subtitle_name, subtitle_url))
+        return episodes
 
     def parse_content(self, response):
         sel = Selector(response)

@@ -29,9 +29,9 @@ class SixNineShuSpider(NovelSpider):
         title = polish_title(title, self.name, useless_ending='最新章节列表')
         return title
 
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         sel = Selector(response)
-        episoders = []
+        episodes = []
         uu = sel.xpath('//ul[@class="mulu_list"]')
         subtitle_selectors = uu[1].xpath('li/a')
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
@@ -39,8 +39,8 @@ class SixNineShuSpider(NovelSpider):
             subtitle_url = response.urljoin(subtitle_url.strip())
             subtitle_name = subtitle_selector.xpath('text()').extract()[0]
             subtitle_name = polish_subtitle(subtitle_name)
-            episoders.append((page_id, subtitle_name, subtitle_url))
-        return episoders
+            episodes.append((page_id, subtitle_name, subtitle_url))
+        return episodes
 
     def parse_content(self, response):
         sel = Selector(response)

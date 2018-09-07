@@ -32,7 +32,7 @@ class Six9shuSpider(NovelSpider):
         title = polish_title(title, self.name, useless_ending='最新章节列表')
         return title
 
-    def parse_episoders(self, response):
+    def parse_episodes(self, response):
         sel = Selector(response)
         episoders = []
         subtitle_selectors = sel.xpath('//div[@class="mu_contain"]')
