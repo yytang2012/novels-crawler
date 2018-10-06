@@ -1,4 +1,4 @@
 scrapy
 dropbox
-pypiwin32
 configparser
+pymongo
