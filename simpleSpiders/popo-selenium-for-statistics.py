@@ -85,8 +85,8 @@ if __name__ == '__main__':
     urls = [
         # 'https://www.popo.tw/books/638516', # 爱欲绮梦【NP】
         # 'https://www.popo.tw/books/632948', # 女巫安娜
-        # 'https://www.popo.tw/books/616424', # 鏡之國
-        'https://www.popo.tw/books/653169', # 如果你知我心
+        'https://www.popo.tw/books/616424', # 鏡之國
+        # 'https://www.popo.tw/books/653169', # 如果你知我心
     ]
     repeat = 100
     while repeat > 0:

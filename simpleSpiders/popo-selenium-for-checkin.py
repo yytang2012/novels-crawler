@@ -1,27 +1,17 @@
-import contextlib
-import time
 import datetime
+import time
+
+from parsel import Selector
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
 from libs.email_api import EmailAPIs
 
 
-@contextlib.contextmanager
-def stopwatch(message):
-    """Context manager to print how long a block of code took."""
-    t0 = time.time()
-    try:
-        yield
-    finally:
-        t1 = time.time()
-        print('Total elapsed time for %s: %.3f' % (message, t1 - t0))
-
-
 class PopoSpider:
     def __init__(self):
         chrome_options = Options()
-        chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--headless")
         # chrome_options.add_argument("--window-size=1920x1080")
         # self.mongoDB = MongoDatabase()
         self.driver = webdriver.Chrome(chrome_options=chrome_options)
@@ -30,7 +20,11 @@ class PopoSpider:
         self.login_to_popo(username, password)
         chrome_driver = self.driver
         chrome_driver.find_element_by_xpath('//a[contains(text(), "打卡")]').click()
+        chrome_driver.find_element_by_xpath('//li[@class="member"]/a').click()
+        sel = Selector(text=chrome_driver.page_source)
+        nickname = sel.xpath('//div[@class="MY-name"]/text()').extract()[0].strip()
         chrome_driver.quit()
+        return nickname
 
     def login_to_popo(self, username, password):
         print("start to login")
@@ -57,27 +51,34 @@ def popo_checkin():
     # username_passwords = USERNAME_PASSWORD
     print(username_passwords)
     message_log = ''
-    with stopwatch('popo check in'):
-        while username_passwords:
-            tmp = []
-            for idx, (username, password) in enumerate(username_passwords):
-                try:
-                    popo_spider = PopoSpider()
-                    popo_spider.start_checkin(username, password)
-                    tmp_msg = "{0}: Done check in for {1}\n".format(idx + 1, username)
-                    message_log += tmp_msg
-                    print(tmp_msg)
-                except Exception as e:
-                    tmp.append((username, password))
-                    tmp_msg = "{0}: Error happened when checking in for {1}\n".format(idx + 1, username)
-                    message_log += tmp_msg
-                    print(tmp_msg)
-            username_passwords = tmp
+
+    start_time = time.time()
+    while username_passwords:
+        tmp = []
+        for idx, (username, password) in enumerate(username_passwords):
+            try:
+                popo_spider = PopoSpider()
+                nickname = popo_spider.start_checkin(username, password)
+                tmp_msg = "{0}: Done check in for {1} : {2}\n".format(idx + 1, username, nickname)
+                message_log += tmp_msg
+                print(tmp_msg)
+            except Exception as e:
+                tmp.append((username, password))
+                tmp_msg = "{0}: Error happened when checking in for {1}\n".format(idx + 1, username)
+                message_log += tmp_msg
+                print(tmp_msg)
+        username_passwords = tmp
+    end_time = time.time()
+    elapse_time = int(end_time - start_time)
+    minutes = int(elapse_time/60)
+    seconds = elapse_time % 60
+    tmp_msg = 'It took {} minutes and {} seconds to complete check-in for all accounts\n'.format(minutes, seconds)
+    message_log += tmp_msg
     notification(message_log)
 
 
 def notification(body):
-    MY_EMAIL = 'xxxxx@gmail.com'
+    MY_EMAIL = 'xxx@gmail.com'
     PASSWORD = 'password'
     try:
         email = EmailAPIs(MY_EMAIL, PASSWORD)
