@@ -19,21 +19,21 @@ class StoSpider(NovelSpider):
     classdocs
 
     example:
-    https://www.sto.cc/book-8976-1.html
-    https://www.sto.cc/mbook-87222-1.html
+    https://www.sto.cx/book-8976-1.html
+    https://www.sto.cx/mbook-87222-1.html
     """
 
-    allowed_domains = ['www.sto.cc']
+    allowed_domains = ['www.sto.cx']
     name = get_spider_name_from_domain(allowed_domains[0])
     # custom_settings = {
     #     'DOWNLOAD_DELAY': 0.3,
     # }
 
     def url_check(self, url):
-        pattern = 'https?://www.sto.cc/m?book-(\d+)-\d+.html'
+        pattern = 'https?://www.sto.cx/m?book-(\d+)-\d+.html'
         m = re.search(pattern, url)
         if m is not None:
-            return 'https://www.sto.cc/book-{0}-1.html'.format(m.group(1))
+            return 'https://www.sto.cx/book-{0}-1.html'.format(m.group(1))
 
         return url
 
