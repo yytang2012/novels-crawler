@@ -39,7 +39,7 @@ class QuanbenioSpider(NovelSpider):
         for page_id, subtitle_selector in enumerate(subtitle_selectors):
             subtitle_url = subtitle_selector.xpath('@href').extract()[0]
             subtitle_url = response.urljoin(subtitle_url.strip())
-            subtitle_name = subtitle_selector.xpath('text()').extract()[0]
+            subtitle_name = subtitle_selector.xpath('span/text()').extract()[0]
             subtitle_name = polish_subtitle(subtitle_name)
             episodes.append((page_id, subtitle_name, subtitle_url))
         return episodes
