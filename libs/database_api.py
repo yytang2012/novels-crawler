@@ -3,7 +3,9 @@ import time
 
 import pymongo
 from pymongo import MongoClient
+
 MONGODB_URI = 'mongodb://localhost:27017'
+
 
 class MongoDatabase:
     def __init__(self):
@@ -26,10 +28,13 @@ class MongoDatabase:
 
     def page_exist(self, title, page_id):
         pages = self.db[title]
-        if pages.find_one({'page_id': page_id}):
-            return True
-        else:
-            return False
+        post = pages.find_one({'page_id': page_id})
+        if post:
+            if post['content'] != '':
+                return True
+            else:
+                pages.delete_many({'page_id': page_id})
+        return False
 
     def update_index(self, title, start_url, all_pages):
         all_pages.sort()

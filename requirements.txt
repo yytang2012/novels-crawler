@@ -2,3 +2,4 @@ scrapy
 dropbox
 configparser
 pymongo
+selenium
