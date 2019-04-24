@@ -1,6 +1,7 @@
 import datetime
 import time
 
+import schedule
 from parsel import Selector
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -11,7 +12,7 @@ from libs.email_api import EmailAPIs
 class PopoSpider:
     def __init__(self):
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         # chrome_options.add_argument("--window-size=1920x1080")
         # self.mongoDB = MongoDatabase()
         self.driver = webdriver.Chrome(chrome_options=chrome_options)
@@ -56,6 +57,7 @@ def popo_checkin():
     while username_passwords:
         tmp = []
         for idx, (username, password) in enumerate(username_passwords):
+            print(username, password)
             try:
                 popo_spider = PopoSpider()
                 nickname = popo_spider.start_checkin(username, password)
@@ -67,6 +69,7 @@ def popo_checkin():
                 tmp_msg = "{0}: Error happened when checking in for {1}\n".format(idx + 1, username)
                 message_log += tmp_msg
                 print(tmp_msg)
+                a = input("Print any key to continue")
         username_passwords = tmp
     end_time = time.time()
     elapse_time = int(end_time - start_time)
@@ -92,13 +95,8 @@ def notification(body):
 
 
 if __name__ == '__main__':
-    flag = True
+    # popo_checkin()
+    schedule.every().day.at("01:16").do(popo_checkin)
     while True:
-        current_time = datetime.datetime.now().strftime('%H')
-        current_time = int(current_time)
-        if current_time <= 12 and not flag:
-            flag = True
-        if current_time > 12 and flag:
-            popo_checkin()
-            flag = False
-        time.sleep(60 * 10)
+        schedule.run_pending()
+        time.sleep(1)
