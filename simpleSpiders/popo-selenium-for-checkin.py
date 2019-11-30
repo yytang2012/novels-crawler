@@ -69,7 +69,6 @@ def popo_checkin():
                 tmp_msg = "{0}: Error happened when checking in for {1}\n".format(idx + 1, username)
                 message_log += tmp_msg
                 print(tmp_msg)
-                a = input("Print any key to continue")
         username_passwords = tmp
     end_time = time.time()
     elapse_time = int(end_time - start_time)

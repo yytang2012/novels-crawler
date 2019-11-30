@@ -9,3 +9,8 @@ def get_username_password():
             password = segments[1].strip()
             username_passwords.append((username, password))
     return username_passwords
+
+
+if __name__ == '__main__':
+    username_password = get_username_password()
+    print(username_password)

@@ -9,8 +9,7 @@ from urllib.parse import urljoin
 
 from libs.database_api import MongoDatabase
 from libs.polish import polish_content, polish_title, polish_subtitle
-
-from simpleSpiders.username_password import get_username_password
+from simpleSpiders.utils import get_username_password
 
 
 class PopoSpider:
@@ -25,8 +24,8 @@ class PopoSpider:
     def start_download(self, urls, username=None, password=None):
         if not username or not password:
             username, password = random.choice(self.username_password)
-        # self.login_to_popo(username, password)
-        self.login_to_po18(username, password)
+        self.login_to_popo(username, password)
+        # self.login_to_po18(username, password)
         for url in self.mongoDB.preprocess_urls(urls, True):
             self.download_url(url)
         self.driver.quit()
@@ -45,7 +44,7 @@ class PopoSpider:
 
         sel = Selector(text=chrome_driver.page_source)
         # title = sel.xpath('//h3[@class="title"]/text()').extract()[0]
-        title = sel.xpath('//h1[@class="book_name"]/text()').extract()[0]
+        title = sel.xpath('//h1/text()').extract()[0]
         title = polish_title(title, 'popo')
 
         # get the content of target novel
@@ -59,7 +58,7 @@ class PopoSpider:
             content_id += 1
             sel = Selector(text=chrome_driver.page_source)
             # chapters += sel.xpath('//div[@class="clist"]/div/a')
-            chapters += sel.xpath('//div[@class="l_chaptname"]/a')
+            chapters += sel.xpath('//div[@class="c2"]/a')
             try:
                 # chrome_driver.find_element_by_xpath('//a/img[@src="/images/icon-page-last.png"]/..').click()
                 chrome_driver.find_element_by_xpath('//*/a[contains(text(), ">")]').click()
@@ -130,7 +129,8 @@ class PopoSpider:
 
 if __name__ == '__main__':
     urls = [
-        'https://www.po18.tw/books/638516',  # 爱欲绮梦【NP】
+        # 'https://www.po18.tw/books/638516',  # 爱欲绮梦【NP】
+        'https://www.popo.tw/books/664842',  # 爱欲绮梦【下部】
         # 'https://www.popo.tw/books/632948',
         # 'https://www.popo.tw/books/650718'  # 用爱发电（短篇集）
     ]
