@@ -7,11 +7,13 @@ Created on Mar 21, 2016
 """
 import os
 
-from scrapy.conf import settings
 import re
 
 from libs.misc import load_from_json
 from libs.misc import save_to_json
+
+from scrapy.utils.project import get_project_settings
+settings = get_project_settings()
 
 
 def polish_string(title, useless_ending='xxx'):

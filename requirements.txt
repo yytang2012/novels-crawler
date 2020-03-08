@@ -1,4 +1,4 @@
-scrapy
+scrapy == 1.8.0
 dropbox
 configparser
 pymongo

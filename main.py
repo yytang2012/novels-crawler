@@ -2,7 +2,6 @@ from collections import defaultdict
 
 import pymongo
 from pymongo import MongoClient
-from scrapy.conf import settings
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 
@@ -17,13 +16,11 @@ class NovelsCrawler:
 
     def __init__(self, urls):
         self._start_urls = defaultdict(lambda: [])
-        self.initialization()
-        self.allowed_domains = self.get_allowed_domains(True)
-        self.start_url_init(urls)
-
-    def initialization(self):
+        settings = get_project_settings()
         self.url_path = settings['URL_FILE']
         self.downloads_path = settings['DOWNLOADS']
+        self.mogodb_url = settings['MONGODB_URI']
+
         if not os.path.isdir(self.downloads_path):
             os.makedirs(self.downloads_path)
 
@@ -37,6 +34,8 @@ class NovelsCrawler:
             config = configparser.RawConfigParser(allow_no_value=True)
             config.read_file(f)
             self.token = config.get('dropbox', 'token')
+        self.allowed_domains = self.get_allowed_domains(True)
+        self.start_url_init(urls)
 
     def get_allowed_domains(self, write_to_file=False):
         allowed_domains = []
@@ -91,7 +90,7 @@ class NovelsCrawler:
     def combine_pages_to_novels(self):
         done = []
         incomplete = []
-        client = MongoClient(settings['MONGODB_URI'])
+        client = MongoClient(self.mogodb_url)
         db = client["Novels"]
         index = db['index']
         novel_info = db['novel_info']

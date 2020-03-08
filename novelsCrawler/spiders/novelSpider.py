@@ -8,7 +8,9 @@ from libs.polish import *
 from novelsCrawler.items import NovelsCrawlerItem
 from pymongo import MongoClient
 
-from scrapy.conf import settings
+from scrapy.utils.project import get_project_settings
+settings = get_project_settings()
+
 
 
 class NovelSpider(scrapy.Spider):

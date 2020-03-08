@@ -9,7 +9,9 @@ import random
 
 from libs.misc import load_from_json
 from user_agents import USER_AGENT_LIST
-from scrapy.conf import settings
+
+from scrapy.utils.project import get_project_settings
+settings = get_project_settings()
 
 
 class NovelscrawlerDownloaderMiddleware(object):

@@ -5,7 +5,6 @@ import abc
 import pymongo
 import scrapy
 from pymongo import MongoClient
-from scrapy.conf import settings
 
 from libs.misc import get_spider_name_from_domain
 from libs.polish import *
