@@ -3,3 +3,5 @@ dropbox
 configparser
 pymongo
 selenium
+zhconv
+schedule
